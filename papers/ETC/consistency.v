@@ -16,9 +16,9 @@ Import ListNotations.
 %\section{Introduction}%
 
 A crucial property of a logical system is consistency, which states that it does not
-entails a contradiction%~\cite{}%. Basically, consistency implies that not all formulas
+entails a contradiction. Basically, consistency implies that not all formulas
 are provable.  While having a simple motivation, consistency proofs rely on
-the well-known admissibility of cut property%~\cite{}%, which has a complex inductive proof.
+the well-known admissibility of cut property, which has a complex inductive proof.
 Gentzen, in his seminal work, gives the first consistency proof of logic by introducing an
 auxiliar formalism, the sequent calculus, in which consistency is trivial. Next, Gentzen showed
 that natural deduction system is equivalent to his sequent calculus extended with an
@@ -26,25 +26,28 @@ additional rule: the cut rule. The final (and hardest) piece of Gentzen's proof 
 show that the cut rule is redundant, i.e., it is admissible. As a consequence, we know
 something stronger: all propositions provable in the natural deduction system are also provable
 in the sequent calculus without cut. Since we know that the sequent calculus is consistent,
-we hence also know that the natural deduction calculus is.
+we hence also know that the natural deduction calculus is%~\cite{Negri2001}%.
 
-However, proving the admissibility of cut is not an easy task, even for simple logics.
+However, proving the admissibility of cut is not easy, even for simple logics.
 Proofs of admissibility need nested inductions and we need to be really careful to
 ensure a decreasing measure on each use of the inductive hypothesis. Such proofs have
 a heavy syntactic flavor since they recursively manipulate proof tree structures to
 eliminate cuts. A more semantic based approach relies on interpreting logics as its
 underlying %$\lambda$%-calculus and prove consistency by using its computation machinery.
-In this work, we report the formalization of these two approaches and advocate the use
-of the latter since it result on easy to follow proofs. The rest of this work is organized
+In this work, we report the Coq formalization of these two approaches and advocate the use
+of the latter since it result on easy to follow proofs. We organize this work
 as follows: Section %\ref{sec:definitions}% present basic definitions about the logic considered
 and Section %\ref{sec:semantics}% describe the semantics of our logic objects and its
-consistency proofs. Section %\ref{sec:conclusion}% presents a brief comparision between
+consistency proof. Section %\ref{sec:conclusion}% presents a brief comparision between
 two consistency proofs and concludes.
+
+The complete formalization was verified using Coq version 8.10.2 and its available
+on-line%~\cite{Sasdelli20}%. For space reasons, we rely on reader's intuition to
+explain Coq code fragments. Good introductions to Coq are available elsewhere%~\cite{Chlipala13}%.
 
 %\section{Basic Definitions}\label{sec:definitions}%
 
-In this section we present the main definitions used in our formalization. First, we consider
-formulas of a minimal fragment of propositional logics which is formed only by the constant
+First, we consider formulas of a minimal fragment of propositional logics which is formed only by the constant
 %\emph{falsum}% (%$\bot$%) and logic implication (%$\supset$%). Following common
 practice, we denote contexts by a list of formulas. The following Coq snipetts
 declare these concepts.
@@ -150,10 +153,8 @@ Arguments Implies_E {_}{_}{_}.
  %\section{Semantics and Consistency}\label{sec:semantics}%
 
 We prove the consistency of logics by exploring its correspondence with the simply typed
-%$\lambda$%-calculus %~\cite{}%. The Curry-Howard correspondence is a crucial idea in modern
-logics that shows the similarity of logical formalisms and its computational counterparts.
-
-FINISH INTRODUCTORY TEXT
+%$\lambda$%-calculus. We do this by implementing in Coq a well-known idea %~\cite{Augustsson99anexercise}%
+for implementating denotational semantics for %$\lambda$%-term in type theory based proof assistants.
 
 We define the denotation of a formula by recursion on its structure. The idea is to associate the
 empty type ([False]) with the formula [Falsum] and a function type with formula [Implies p1 p2],
@@ -162,8 +163,7 @@ as presented next.
 
 Program Fixpoint sem_form (p : form) : Type :=
   match p with
-  | Falsum => False
-  | Implies p1 p2 => sem_form p1 -> sem_form p2
+  | Falsum => False | Implies p1 p2 => sem_form p1 -> sem_form p2
   end.
 
 (**
@@ -173,8 +173,7 @@ of formula semantics as follows:
 
 Program Fixpoint sem_ctx (G : ctx) : Type :=
   match G with
-  | [] => unit
-  | (t :: G') => sem_form t * sem_ctx G'
+  | [] => unit | (t :: G') => sem_form t * sem_ctx G'
   end.
 (**
 Function [sem_ctx] recurses over the structure of the input context building
@@ -186,8 +185,7 @@ value associated with a variable in a context.
 
 Program Fixpoint sem_var {G p}(v : var G p) : sem_ctx G -> sem_form p :=
     match v with
-    | Here => fun env => fst env
-    | There v' => fun env => sem_var v' (snd env)
+    | Here => fun env => fst env | There v' => fun env => sem_var v' (snd env)
     end. 
 
 (**
@@ -234,4 +232,13 @@ Theorem consistency : nat_ded [] Falsum -> False := fun p => sem_nat_ded p tt.
 
 (**
 %\section{Conclusion}\label{sec:conclusion}%
+
+In this work we briefly describe a Coq formalization of a semantics based consistency proof for
+minimal propositional logic. The complete proof is only 85 lines long and only use of some basic
+dependently typed programming features of Coq. We also
+formalize the consistency of this simple logic in Coq using Gentzen's admissibility of cut approach
+which resulted in around 270 lines of code and uses some extra proof tactics libraries.
+As future work, we intend to extend the current formalization to full propositional logic and also
+other formalisms like Hilbert systems and analytic tableaux%~\cite{smullyan1995first}%.
+
  *)

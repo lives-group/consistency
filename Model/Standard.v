@@ -1,10 +1,7 @@
 Require Import
         Arith_base
         List
-        Program
-        Tactics.Tactics
-        Utils.Basics.
-
+        Program.
 
 Import ListNotations.
 
