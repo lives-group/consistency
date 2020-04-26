@@ -1,0 +1,46 @@
+\documentclass[12pt]{article}
+
+\usepackage{sbc-template}
+\usepackage{graphicx,url}
+\usepackage[brazil]{babel}
+\usepackage[latin1]{inputenc}  
+\usepackage{amsmath, amsthm, amssymb}
+\usepackage{proof}
+\usepackage{coqdoc}
+     
+\sloppy
+
+\title{A Semantical Proof of Consistency\\ for Minimal Propositional Logic in Coq}
+
+\author{Felipe Sasdelli\inst{1}, Maycon Amaro\inst{1}, Rodrigo Ribeiro\inst{1}}
+
+
+\address{Departamento de Computa\c{c}\~ao -- Universidade Federal de Ouro Preto
+  (UFOP)\\
+  35400-000 -- Ouro Preto -- MG -- Brazil
+  \email{\{felipe.sasdelli,maycon.amaro\}@aluno.ufop.edu.br,
+    rodrigo.ribeiro@ufop.edu.br}
+}
+
+\begin{document} 
+
+\maketitle
+
+\begin{abstract}
+  Consistency is a key property of any logical system. However, proofs of
+  consistency usually rely on heavy proof theory notions like admissibility
+  of cut. A more semantics based approach to consistency proofs is to explore the
+  correspondence between a logics and its relation with the
+  evaluation in a $\lambda$-calculus, known as Curry-Howard isomorphism.
+  In this work, we describe a Coq formalization of consistency of minimal
+  propositional logics using this semantics approach and compare it with 
+  the traditional approaches used in proof theory.
+\end{abstract}
+
+\input{consistency.tex}
+
+
+\bibliographystyle{sbc}
+\bibliography{sbc-template}
+
+\end{document}

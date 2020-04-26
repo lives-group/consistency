@@ -1,0 +1,11 @@
+-R . consistency
+
+Minimal/Syntax.v
+Minimal/SequentCalculus.v
+Minimal/NatDed.v
+Model/Standard.v
+Tactics/Crush.v
+Tactics/Done.v
+Tactics/LibTactics.v
+Tactics/Tactics.v
+Utils/Basics.v

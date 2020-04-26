@@ -1,0 +1,274 @@
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocemptyline
+\end{coqdoccode}
+\section{Introduction}
+
+
+A crucial property of a logical system is consistency, which states that it does not
+entails a contradiction~\cite{}. Basically, consistency implies that not all formulas
+are provable.  While having a simple motivation, consistency proofs rely on
+the well-known admissibility of cut property~\cite{}, which has a complex inductive proof.
+Gentzen, in his seminal work, gives the first consistency proof of logic by introducing an
+auxiliar formalism, the sequent calculus, in which consistency is trivial. Next, Gentzen showed
+that natural deduction system is equivalent to his sequent calculus extended with an
+additional rule: the cut rule. The final (and hardest) piece of Gentzen's proof is to 
+show that the cut rule is redundant, i.e., it is admissible. As a consequence, we know
+something stronger: all propositions provable in the natural deduction system are also provable
+in the sequent calculus without cut. Since we know that the sequent calculus is consistent,
+we hence also know that the natural deduction calculus is.
+
+
+However, proving the admissibility of cut is not an easy task, even for simple logics.
+Proofs of admissibility need nested inductions and we need to be really careful to
+ensure a decreasing measure on each use of the inductive hypothesis. Such proofs have
+a heavy syntactic flavor since they recursively manipulate proof tree structures to
+eliminate cuts. A more semantic based approach relies on interpreting logics as its
+underlying $\lambda$-calculus and prove consistency by using its computation machinery.
+In this work, we report the formalization of these two approaches and advocate the use
+of the latter since it result on easy to follow proofs. The rest of this work is organized
+as follows: Section \ref{sec:definitions} present basic definitions about the logic considered
+and Section \ref{sec:semantics} describe the semantics of our logic objects and its
+consistency proofs. Section \ref{sec:conclusion} presents a brief comparision between
+two consistency proofs and concludes.
+
+
+\section{Basic Definitions}\label{sec:definitions}
+
+
+In this section we present the main definitions used in our formalization. First, we consider
+formulas of a minimal fragment of propositional logics which is formed only by the constant
+\emph{falsum} ($\bot$) and logic implication ($\supset$). Following common
+practice, we denote contexts by a list of formulas. The following Coq snipetts
+declare these concepts.
+
+
+\begin{minipage}[c]{0.3\textwidth}
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Inductive} \coqdocvar{$\alpha$} : \coqdockw{Set} :=\coqdoceol
+\coqdocnoindent
+\ensuremath{|} \coqdocvar{Falsum} : \coqdocvar{$\alpha$}\coqdoceol
+\coqdocnoindent
+\ensuremath{|} \coqdocvar{Implies} : \coqdocvar{$\alpha$} \ensuremath{\rightarrow} \coqdocvar{$\alpha$} \ensuremath{\rightarrow} \coqdocvar{$\alpha$}.\coqdoceol
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Definition} \coqdocvar{$\Gamma$} := \coqdocvar{list} \coqdocvar{$\alpha$}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\end{minipage}
+\begin{minipage}[c]{0.6\textwidth}
+While types for formulas (\coqdocvar{$\alpha$}) and contexs (\coqdocvar{$\Gamma$}) have an immediate interpretation, the previous types
+miss an important part of propositional logic: variables. We represent variables by an inductive judgement
+which states the membership of a formula in a context.
+\end{minipage}
+
+
+We let notation $\alpha \in \Gamma$ denote an inductive predicate that states that a formula $\alpha$
+is an element of context $\Gamma$. The rules for variable judgement and its Coq implementation are presented below.
+
+
+\begin{minipage}[c]{0.6\textwidth}
+ \begin{coqdoccode}
+\coqdocnoindent
+\coqdockw{Inductive} \coqdocvar{var} : \coqdocvar{$\Gamma$} \ensuremath{\rightarrow} \coqdocvar{$\alpha$} \ensuremath{\rightarrow} \coqdockw{Type} :=\coqdoceol
+\coqdocnoindent
+\ensuremath{|} \coqdocvar{Here} : \coqdockw{\ensuremath{\forall}} \coqdocvar{G} \coqdocvar{p}, \coqdocvar{var} (\coqdocvar{p} :: \coqdocvar{G}) \coqdocvar{p}\coqdoceol
+\coqdocnoindent
+\ensuremath{|} \coqdocvar{There} : \coqdockw{\ensuremath{\forall}} \coqdocvar{G} \coqdocvar{p} \coqdocvar{p'}, \coqdocvar{var} \coqdocvar{G} \coqdocvar{p} \ensuremath{\rightarrow} \coqdocvar{var} (\coqdocvar{p'} :: \coqdocvar{G}) \coqdocvar{p}.\coqdoceol
+\end{coqdoccode}
+\end{minipage}
+\begin{minipage}[c]{0.3\textwidth}
+\[
+\begin{array}{c}
+\infer[_{\{Here\}}]{\alpha \in (\alpha :: \Gamma)}{}\\ \\
+\infer[_{\{There\}}]{\alpha \in (\beta :: \Gamma)}{\alpha \in \Gamma} \\ \\
+\end{array}
+\]
+\end{minipage}
+The first constructor of type \coqdocvar{var} specifies that a formula $\alpha$ is in the context $\alpha :: \Gamma$ and
+the constructor \coqdocvar{There} specifies that if a formula $\alpha$ is in $\Gamma$ then we have
+ $\alpha \in (\beta :: \Gamma)$, for any formula $\beta$.
+
+
+Using the previous definitions, we can implement natural deduction rules for our minimal logic, as presented below.
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocemptyline
+\end{coqdoccode}
+\begin{minipage}[c]{0.6\textwidth}
+\begin{coqdoccode}
+\coqdocnoindent
+\coqdockw{Inductive} \coqdocvar{nd} : \coqdocvar{$\Gamma$} \ensuremath{\rightarrow} \coqdocvar{$\alpha$} \ensuremath{\rightarrow} \coqdockw{Type} :=\coqdoceol
+\coqdocnoindent
+\ensuremath{|} \coqdocvar{Id} : \coqdockw{\ensuremath{\forall}} \coqdocvar{G} \coqdocvar{p},\coqdoceol
+\coqdocindent{2.00em}
+\coqdocvar{var} \coqdocvar{G} \coqdocvar{p} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{2.00em}
+\coqdocvar{nd} \coqdocvar{G} \coqdocvar{p}\coqdoceol
+\coqdocnoindent
+\ensuremath{|} \coqdocvar{ExFalsum} : \coqdockw{\ensuremath{\forall}} \coqdocvar{G} \coqdocvar{p},\coqdoceol
+\coqdocindent{2.00em}
+\coqdocvar{nd} \coqdocvar{G} \coqdocvar{Falsum} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{2.00em}
+\coqdocvar{nd} \coqdocvar{G} \coqdocvar{p}\coqdoceol
+\coqdocnoindent
+\ensuremath{|} \coqdocvar{Implies\_I} : \coqdockw{\ensuremath{\forall}} \coqdocvar{G} \coqdocvar{p} \coqdocvar{p'},\coqdoceol
+\coqdocindent{2.00em}
+\coqdocvar{nd} (\coqdocvar{p'} :: \coqdocvar{G}) \coqdocvar{p} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{2.00em}
+\coqdocvar{nd} \coqdocvar{G} (\coqdocvar{Implies} \coqdocvar{p'} \coqdocvar{p})\coqdoceol
+\coqdocnoindent
+\ensuremath{|} \coqdocvar{Implies\_E} : \coqdockw{\ensuremath{\forall}} \coqdocvar{G} \coqdocvar{p} \coqdocvar{p'},\coqdoceol
+\coqdocindent{2.00em}
+\coqdocvar{nd} \coqdocvar{G} (\coqdocvar{Implies} \coqdocvar{p'} \coqdocvar{p}) \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{2.00em}
+\coqdocvar{nd} \coqdocvar{G} \coqdocvar{p'} \ensuremath{\rightarrow}\coqdoceol
+\coqdocindent{2.00em}
+\coqdocvar{nd} \coqdocvar{G} \coqdocvar{p}.\coqdoceol
+\end{coqdoccode}
+\end{minipage}
+\begin{minipage}[c]{0.3\textwidth}
+\[
+\begin{array}{c}
+\infer[_{\{Id\}}]{\Gamma \vdash x}{x \in \Gamma} \\ \\
+\infer[_{\{Ex\}}]{\Gamma \vdash \alpha}{\Gamma \vdash \bot}\\ \\
+\infer[_{\{\supset-I\}}]{\Gamma \vdash \alpha \supset \beta}{\Gamma \cup \{\alpha\} \vdash \beta}\\ \\
+\infer[_{\{\supset-E\}}]{\Gamma \vdash \beta}{\Gamma \vdash \alpha \supset \beta & \Gamma \vdash \alpha}
+\end{array}
+\]
+\end{minipage}
+
+
+The first rule (\coqdocvar{Id}) stabilishes that any formula in the context is provable and rule \coqdocvar{ExFalsum} defines
+the principle \emph{ex-falsum quod libet} which allow us to prove any formula if we have a deduction of \coqdocvar{Falsum}.
+Rule \coqdocvar{Implies\_I} specifies that from a deduction of a formula \coqdocvar{p} from a context \coqdocvar{p'} :: \coqdocvar{G}, \coqdocvar{nd} (\coqdocvar{p'} :: \coqdocvar{G}) \coqdocvar{p},
+we can prove the implication \coqdocvar{Implies} \coqdocvar{p'} \coqdocvar{p}. The last rule, \coqdocvar{Implies\_E}, represents the well-known \emph{modus-ponens},
+which allows us to deduce a formula \coqdocvar{p} from deductions of \coqdocvar{Implies} \coqdocvar{p'} \coqdocvar{p} and \coqdocvar{p'}.
+
+
+Next section uses the relation between logics and $\lambda$-calculus and its evaluation to prove the consistency of
+minimal logic.
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocemptyline
+\end{coqdoccode}
+ \section{Semantics and Consistency}\label{sec:semantics}
+
+
+We prove the consistency of logics by exploring its correspondence with the simply typed
+$\lambda$-calculus ~\cite{}. The Curry-Howard correspondence is a crucial idea in modern
+logics that shows the similarity of logical formalisms and its computational counterparts.
+
+
+FINISH INTRODUCTORY TEXT
+
+
+We define the denotation of a formula by recursion on its structure. The idea is to associate the
+empty type (\coqdocvar{False}) with the formula \coqdocvar{Falsum} and a function type with formula \coqdocvar{Implies} \coqdocvar{p1} \coqdocvar{p2},
+as presented next.
+ \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Program Fixpoint} \coqdocvar{sem\_form} (\coqdocvar{p} : \coqdocvar{$\alpha$}) : \coqdockw{Type} :=\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{match} \coqdocvar{p} \coqdockw{with}\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{|} \coqdocvar{Falsum} \ensuremath{\Rightarrow} \coqdocvar{False}\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{|} \coqdocvar{Implies} \coqdocvar{p1} \coqdocvar{p2} \ensuremath{\Rightarrow} \coqdocvar{sem\_form} \coqdocvar{p1} \ensuremath{\rightarrow} \coqdocvar{sem\_form} \coqdocvar{p2}\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{end}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+Using \coqdocvar{sem\_form} function, we can define context semantics as tuples
+of formula semantics as follows:
+ \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Program Fixpoint} \coqdocvar{sem\_ctx} (\coqdocvar{G} : \coqdocvar{$\Gamma$}) : \coqdockw{Type} :=\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{match} \coqdocvar{G} \coqdockw{with}\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{|} $\emptyset$ \ensuremath{\Rightarrow} \coqdocvar{unit}\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{|} (\coqdocvar{t} :: \coqdocvar{G'}) \ensuremath{\Rightarrow} \coqdocvar{sem\_form} \coqdocvar{t} \ensuremath{\times} \coqdocvar{sem\_ctx} \coqdocvar{G'}\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{end}.\coqdoceol
+\end{coqdoccode}
+Function \coqdocvar{sem\_ctx} recurses over the structure of the input context building
+right-nested tuple ending with the Coq \coqdocvar{unit} type, which is a type with a
+unique element. Since context are mapped intro tuples, variables must be
+mapped into projections on such tuples. This would allow us to retrieve the
+value associated with a variable in a context.
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Program Fixpoint} \coqdocvar{sem\_var} \{\coqdocvar{G} \coqdocvar{p}\}(\coqdocvar{v} : \coqdocvar{var} \coqdocvar{G} \coqdocvar{p}) : \coqdocvar{sem\_ctx} \coqdocvar{G} \ensuremath{\rightarrow} \coqdocvar{sem\_form} \coqdocvar{p} :=\coqdoceol
+\coqdocindent{2.00em}
+\coqdockw{match} \coqdocvar{v} \coqdockw{with}\coqdoceol
+\coqdocindent{2.00em}
+\ensuremath{|} \coqdocvar{Here} \ensuremath{\Rightarrow} \coqdockw{fun} \coqdocvar{env} \ensuremath{\Rightarrow} \coqdocvar{fst} \coqdocvar{env}\coqdoceol
+\coqdocindent{2.00em}
+\ensuremath{|} \coqdocvar{There} \coqdocvar{v'} \ensuremath{\Rightarrow} \coqdockw{fun} \coqdocvar{env} \ensuremath{\Rightarrow} \coqdocvar{sem\_var} \coqdocvar{v'} (\coqdocvar{snd} \coqdocvar{env})\coqdoceol
+\coqdocindent{2.00em}
+\coqdockw{end}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+Function \coqdocvar{sem\_var} receives a variable (value of type \coqdocvar{var} \coqdocvar{G} \coqdocvar{p}) and a semantics
+of a context (a value of type \coqdocvar{sem\_ctx} \coqdocvar{G}) and returns the value of the formula
+represented by such variable. Whenever the variable is built using constructor \coqdocvar{Here},
+we just return the first component of the input context semantics and when we have
+the constructor \coqdocvar{There} we just call  \coqdocvar{sem\_var} recursively.
+
+
+Our next step is to define the semantics of natural deduction proofs. The semantics of
+proofs is implemented by function \coqdocvar{sem\_nat\_ded} which maps proofs (values of type \coqdocvar{nat\_ded} \coqdocvar{G} \coqdocvar{p})
+and context semantics (values of type \coqdocvar{sem\_ctx} \coqdocvar{G}) to the value of input proof conclusion
+(type \coqdocvar{sem\_form} \coqdocvar{p}). The first case specifies that the semantics of an identity rule proof
+(constructor \coqdocvar{Id}) is just retrieving the value of the underlying variable in the context semantics
+by calling function \coqdocvar{sem\_var}. Second case deals with \coqdocvar{ExFalsum} rule: we recurse over the proof
+object \coqdocvar{Hf} which will produces a Coq object of type \coqdocvar{False}, which is empty and so we can finish the
+definition with an empty pattern match. Semantics of implication introduction (\coqdocvar{Implies\_I}) simply
+recurses on the subderivation \coqdocvar{Hp} using an extended context (\coqdocvar{v'} , \coqdocvar{env}). Finally, we define the
+semantics of implication elimination as simply function application of the results of the
+recursive call on its two subderivations.
+\begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Program Fixpoint} \coqdocvar{sem\_nat\_ded} \{\coqdocvar{G} \coqdocvar{p}\}(\coqdocvar{H} : \coqdocvar{nat\_ded} \coqdocvar{G} \coqdocvar{p})\coqdoceol
+\coqdocindent{1.00em}
+: \coqdocvar{sem\_ctx} \coqdocvar{G} \ensuremath{\rightarrow} \coqdocvar{sem\_form} \coqdocvar{p} :=\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{match} \coqdocvar{H} \coqdockw{with}\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{|} \coqdocvar{Id} \coqdocvar{v} \ensuremath{\Rightarrow} \coqdockw{fun} \coqdocvar{env} \ensuremath{\Rightarrow} \coqdocvar{sem\_var} \coqdocvar{v} \coqdocvar{env}\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{|} \coqdocvar{ExFalsum} \coqdocvar{Hf} \ensuremath{\Rightarrow} \coqdockw{fun} \coqdocvar{env} \ensuremath{\Rightarrow}\coqdoceol
+\coqdocindent{3.00em}
+\coqdockw{match} \coqdocvar{sem\_nat\_ded} \coqdocvar{Hf} \coqdocvar{env} \coqdockw{with}\coqdoceol
+\coqdocindent{3.00em}
+\coqdockw{end}\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{|} \coqdocvar{Implies\_I} \coqdocvar{Hp} \ensuremath{\Rightarrow} \coqdockw{fun} \coqdocvar{env} \coqdocvar{v'} \ensuremath{\Rightarrow} \coqdocvar{sem\_nat\_ded} \coqdocvar{Hp} (\coqdocvar{v'} , \coqdocvar{env})\coqdoceol
+\coqdocindent{1.00em}
+\ensuremath{|} \coqdocvar{Implies\_E} \coqdocvar{Hp} \coqdocvar{Ha} \ensuremath{\Rightarrow} \coqdockw{fun} \coqdocvar{env} \ensuremath{\Rightarrow} (\coqdocvar{sem\_nat\_ded} \coqdocvar{Hp} \coqdocvar{env}) (\coqdocvar{sem\_nat\_ded} \coqdocvar{Ha} \coqdocvar{env})\coqdoceol
+\coqdocindent{1.00em}
+\coqdockw{end}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+Using all thoses previously defined pieces we can prove the consistency of our little natural
+deduction system merely by showing that it should not be the case that we have a proof of \coqdocvar{Falsum}
+using the empty set of assumptions. We can proof such fact by exhbiting a term of type
+\coqdocvar{nat\_ded} $\emptyset$ \coqdocvar{Falsum} \ensuremath{\rightarrow} \coqdocvar{False}\footnote{Here we use the fact that $\neg \alpha$ is
+equivalent to $\alpha \supset \bot$.}, which is trivially done by using function \coqdocvar{sem\_nat\_ded}.
+ \begin{coqdoccode}
+\coqdocemptyline
+\coqdocnoindent
+\coqdockw{Theorem} \coqdocvar{consistency} : \coqdocvar{nat\_ded} $\emptyset$ \coqdocvar{Falsum} \ensuremath{\rightarrow} \coqdocvar{False} := \coqdockw{fun} \coqdocvar{p} \ensuremath{\Rightarrow} \coqdocvar{sem\_nat\_ded} \coqdocvar{p} \coqdocvar{tt}.\coqdoceol
+\coqdocemptyline
+\end{coqdoccode}
+\section{Conclusion}\label{sec:conclusion}
+ \begin{coqdoccode}
+\end{coqdoccode}
