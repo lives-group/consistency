@@ -2,11 +2,13 @@
 
 \usepackage{sbc-template}
 \usepackage{graphicx,url}
-\usepackage[brazil]{babel}
+%\usepackage[brazil]{babel}
 \usepackage[latin1]{inputenc}  
 \usepackage{amsmath, amsthm, amssymb}
 \usepackage{proof}
 \usepackage{coqdoc}
+\usepackage{listings,lstlangcoq,bold-extra}
+\lstset{basicstyle=\ttfamily,language=Coq,showstringspaces=false}
      
 \sloppy
 
@@ -21,6 +23,14 @@
   \email{\{felipe.sasdelli,maycon.amaro\}@aluno.ufop.edu.br,
     rodrigo.ribeiro@ufop.edu.br}
 }
+
+\theoremstyle{definition}
+
+\newtheorem{Theorem}{Theorem}
+\newtheorem*{Theorem*}{Theorem}
+\newtheorem{Corolary}{Corolary}
+\newtheorem{Lemma}{Lemma}
+
 
 \begin{document} 
 
@@ -39,8 +49,195 @@
 
 \input{consistency.tex}
 
-
 \bibliographystyle{sbc}
 \bibliography{template}
 
+\appendix
+
+\section{Consistency Proof Based on Admissibility}
+
+\subsection{Overview}
+
+Due to limited space, we include a brief description of our formalization of
+consistency using Gentzen's cut-elimination method in this appendix. First, we
+describe types for describing the syntax of formulas, natural deduction proofs
+and sequent calculus proofs. Next, we provide proof sketchs of weakening for
+sequent calculus, equivalence of sequent-calculus with
+
+\subsection{Basic Definitions}
+
+Unlike in our semantics based proof, we need to represent variables in
+formula syntax. We chose to represent variable identifiers as natural
+numbers.
+
+\begin{lstlisting}
+Definition var := nat.
+
+Inductive form : Type :=
+| Falsum  : form 
+| Var     : var -> form
+| Implies : form -> form -> form.
+\end{lstlisting}
+
+Constructors \lstinline{Falsum} e \lstinline{Implies} represent the
+false constant and logical implication, respectively. Using the defined
+syntax, we can represent natural deduction and sequent calculus rules as
+inductive types as presented next.
+
+\begin{minipage}[c]{0.6\textwidth}
+\begin{lstlisting}
+Inductive nd : ctx -> form -> Prop :=
+| Id_Nd G a
+  : a el G ->
+    nd G a
+| ExFalsum G a
+  : nd G Falsum ->
+    nd G a
+| Implies_I G a b
+  : nd (a :: G) b ->
+    nd G (Implies a b)
+| Implies_E G a b
+  : nd G (Implies a b) ->
+    nd G a -> nd G b.
+\end{lstlisting}
+\end{minipage}
+\begin{minipage}[c]{0.3\textwidth}
+\[
+\begin{array}{c}
+\infer[_{\{Id\}}]{\Gamma \vdash x}{x \in \Gamma} \\ \\
+\infer[_{\{Ex\}}]{\Gamma \vdash \alpha}{\Gamma \vdash \bot}\\ \\
+\infer[_{\{\supset-I\}}]{\Gamma \vdash \alpha \supset \beta}{\Gamma \cup \{\alpha\} \vdash \beta}\\ \\
+\infer[_{\{\supset-E\}}]{\Gamma \vdash \beta}{\Gamma \vdash \alpha \supset \beta & \Gamma \vdash \alpha}
+\end{array}
+\]
+\end{minipage}
+
+The only change on how we represent the natural deduction proof system is in the
+rule for variables. We use the Coq library boolean list membership predicate
+(\lstinline{member}), which fits better for proof automation. In order to
+simplify the task of writing code that uses this predicate, we defined
+notation \lstinline{a el G} which means \lstinline{member a G}. The other
+constructors of type \lstinline{nd} are identitical to the ones presented in
+Section~\ref{sec:semantics}.
+
+Next, we the sequent calculus formulation for our minimal logic. The only
+difference with the natural deduction is in one rule for implication. The
+sequent calculus rule counter-part for implication elimination is called
+implication left rule, which states that we can conclude any formula $\gamma$
+in a context $\Gamma$ if we have that: 1) $\alpha \supset \beta \in \Gamma$;
+2) $\Gamma \Rightarrow \alpha$ and 3) $\Gamma \cup \{\beta\} \Rightarrow
+\gamma$. The rules for the sequent-calculus an its correspondent Coq
+implementation are presented next.
+
+\begin{minipage}[c]{0.6\textwidth}
+\begin{lstlisting}
+Inductive sc : ctx -> form -> Prop :=
+| Id G a
+  : (Var a) el G ->
+    sc G (Var a)
+| Falsum_L G a
+  : Falsum el G ->
+    sc G a
+| Implies_R G a b
+  : sc (a :: G) b ->
+    sc G (Implies a b)
+| Implies_L G a b c
+  : (Implies a b) el G ->
+    sc G a ->
+    sc (b :: G) c ->
+    sc G c.  
+\end{lstlisting}
+\end{minipage}
+\begin{minipage}[c]{0.3\textwidth}
+\[
+\begin{array}{c}
+\infer[_{\{Id\}}]{\Gamma \Rightarrow x}{x \in \Gamma} \\ \\
+\infer[_{\{Ex\}}]{\Gamma \Rightarrow \alpha}{\Gamma \Rightarrow \bot}\\ \\
+\infer[_{\{\supset-I\}}]{\Gamma \Rightarrow \alpha \supset \beta}{\Gamma \cup \{\alpha\} \Rightarrow \beta}\\ \\
+  \infer[_{\{\supset-E\}}]{\Gamma \Rightarrow \gamma}{\begin{array}{c}
+                                                       \alpha \supset \beta \in
+                                                        \Gamma \\
+                                                        \Gamma \Rightarrow
+                                                        \alpha \\ \Gamma \cup
+                                                        \{\beta\}\vdash \gamma
+                                                    \end{array}}
+\end{array}
+\]
+\end{minipage}
+
+Using the previous definitions we can prove consistency of our minimal logic by
+implementing Gentzen's argument using Coq. In the next section, we outline the
+theorems and lemmas proved.
+
+\section{Proving Consistency}
+
+In order to prove the admissibility of cut for sequent-calculus, we need to
+prove \emph{weakening}, which states that the inclusion of new hypothesis does
+not change provability.
+
+\begin{Lemma}[Weakening]\label{lemma:weak}
+  If $\Gamma \Rightarrow \alpha$ and $\Gamma \subseteq \Gamma'$ then $\Gamma'
+  \Rightarrow \alpha$.
+\end{Lemma}
+\begin{proof}
+  By structural induction on the derivation of $\Gamma \Rightarrow \alpha$.
+\end{proof}
+
+Using weakening property we can prove a generalized version of admissibility of
+cut. We first prove this auxiliar lemma in order to get a stronger induction
+hypothesis. From the next lemma, admissibility is just a corollary.
+
+\begin{Lemma}[Genealized admissibility]\label{lemma:admissibility}
+  If $\Gamma \Rightarrow \alpha$ and $\Gamma' \Rightarrow \beta$ then $\Gamma
+  \cup (\Gamma' - \{\alpha\}) \Rightarrow \beta$.
+\end{Lemma}
+\begin{proof}
+  By structural induction on $\alpha$ using Lemma~\ref{lemma:weak} and
+  nested inductions on $\Gamma \Rightarrow \alpha$ and
+  $\Gamma' \Rightarrow \beta$, when needed.
+\end{proof}
+
+\begin{Corolary}[Admissibility of cut]
+  If $\Gamma \Rightarrow \alpha$ and $\Gamma \cup\{\alpha\}\Rightarrow \beta$
+  then $\Gamma \Rightarrow \beta$.
+\end{Corolary}
+\begin{proof}
+  Immediate consequence of Lemmas~\ref{lemma:weak} and~\ref{lemma:admissibility}.
+\end{proof}
+
+Consistency of sequent calculus trivially by inspection on the structure of
+derivations.
+
+\begin{Theorem}[Consistency of sequent calculus]\label{theorem:consistency}
+  There is no proof of $\emptyset \Rightarrow \bot$.
+\end{Theorem}
+\begin{proof}
+  Immediate from the sequent calculus rules (there is no rule to introduce $\bot$).
+\end{proof}
+
+The Coq code for all these proofs can be found in file SequentCalculus.v
+on-line~\cite{Sasdelli20}.
+
+The next step in the mechanization of the
+consistency of our minimal logic is to stabilish the equivalence between sequent
+calculus and natural deduction systems. The equivalence proofs between these two
+formalism are based on a routine induction on derivations using admissibility of
+cut. We omit its description for brevity. The complete proofs of these
+equivalence results can be found in file NatDed.v in the source code
+repository~\cite{Sasdelli20}.
+
+Finally, we can prove the consistency of natural deduction by combining the
+proofs of consistency of the sequent calculus and the equivalence between these
+formalisms.
+
+\begin{Theorem}[Consistency for Natural Deduction]
+  There is no proof of $\emptyset \vdash \bot$.
+\end{Theorem}
+\begin{proof}
+  Suppose that $\emptyset \vdash \bot$. By the equivalence between natural
+  deduction and sequent calculus, we have $\emptyset\Rightarrow \bot$, which
+  contradicts Theorem~\ref{theorem:consistency}.
+\end{proof}  
+
 \end{document}
+

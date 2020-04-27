@@ -43,7 +43,7 @@ two consistency proofs and concludes.
 
 The complete formalization was verified using Coq version 8.10.2 and its available
 on-line%~\cite{Sasdelli20}%. For space reasons, we rely on reader's intuition to
-explain Coq code fragments. Good introductions to Coq are available elsewhere%~\cite{Chlipala13}%.
+explain Coq code fragments. Good introductions to Coq are avaliable elsewhere%~\cite{Chlipala13}%.
 
 %\section{Basic Definitions}\label{sec:definitions}%
 
@@ -154,7 +154,7 @@ Arguments Implies_E {_}{_}{_}.
 
 We prove the consistency of logics by exploring its correspondence with the simply typed
 %$\lambda$%-calculus. We do this by implementing in Coq a well-known idea %~\cite{Augustsson99anexercise}%
-for implementating denotational semantics for %$\lambda$%-term in type theory based proof assistants.
+for implementing denotational semantics for %$\lambda$%-term in type theory based proof assistants.
 
 We define the denotation of a formula by recursion on its structure. The idea is to associate the
 empty type ([False]) with the formula [Falsum] and a function type with formula [Implies p1 p2],
@@ -240,5 +240,4 @@ formalize the consistency of this simple logic in Coq using Gentzen's admissibil
 which resulted in around 270 lines of code and uses some extra proof tactics libraries.
 As future work, we intend to extend the current formalization to full propositional logic and also
 other formalisms like Hilbert systems and analytic tableaux%~\cite{smullyan1995first}%.
-
  *)
