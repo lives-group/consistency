@@ -76,3 +76,9 @@ Proof.
   apply nat_ded_implies_seq_calc.
 Qed.
 
+Corollary nat_ded_consistent : exists a, ~ nat_ded [] a.
+Proof.
+  exists Falsum. intros H.
+  apply nat_ded_implies_seq_calc in H.
+  apply seq_calc_no_falsum in H ; auto.
+Qed.
