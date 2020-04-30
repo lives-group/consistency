@@ -20,8 +20,8 @@ entails a contradiction. Basically, consistency implies that not all formulas
 are provable.  While having a simple motivation, consistency proofs rely on
 the well-known admissibility of cut property, which has a complex inductive proof.
 Gentzen, in his seminal work, gives the first consistency proof of logic by introducing an
-auxiliar formalism, the sequent calculus, in which consistency is trivial. Next, Gentzen showed
-that natural deduction system is equivalent to his sequent calculus extended with an
+auxiliary formalism, the sequent calculus, in which consistency is trivial. Next, Gentzen showed
+that the natural deduction system is equivalent to his sequent calculus extended with an
 additional rule: the cut rule. The final (and hardest) piece of Gentzen's proof is to 
 show that the cut rule is redundant, i.e., it is admissible. As a consequence, we know
 something stronger: all propositions provable in the natural deduction system are also provable
@@ -29,27 +29,25 @@ in the sequent calculus without cut. Since we know that the sequent calculus is 
 we hence also know that the natural deduction calculus is%~\cite{Negri2001}%.
 
 However, proving the admissibility of cut is not easy, even for simple logics.
-Proofs of admissibility need nested inductions and we need to be really careful to
+Proofs of admissibility need nested inductions, and we need to be really careful to
 ensure a decreasing measure on each use of the inductive hypothesis. Such proofs have
 a heavy syntactic flavor since they recursively manipulate proof tree structures to
-eliminate cuts. A more semantic based approach relies on interpreting logics as its
-underlying %$\lambda$%-calculus and prove consistency by using its computation machinery.
+eliminate cuts. A more semantics-based approach relies on interpreting logics as its
+underlying %$\lambda$%-calculus and proves consistency by using its computation machinery.
 In this work, we report the Coq formalization of these two approaches and advocate the use
-of the latter since it result on easy to follow proofs. We organize this work
-as follows: Section %\ref{sec:definitions}% present basic definitions about the logic considered
-and Section %\ref{sec:semantics}% describe the semantics of our logic objects and its
-consistency proof. Section %\ref{sec:conclusion}% presents a brief comparision between
-two consistency proofs and concludes.
-
-The complete formalization was verified using Coq version 8.10.2 and its available
+of the latter since it results on easy to follow proofs. We organize this work
+as follows: Section %\ref{sec:definitions}% presents basic definitions about the logic considered
+and Section %\ref{sec:semantics}% describes the semantics of our logic objects and its
+consistency proof. Section %\ref{sec:conclusion}% presents a brief comparison between
+the two consistency proofs and concludes. The complete formalization was verified using Coq version 8.10.2 and it is available
 on-line%~\cite{Sasdelli20}%. For space reasons, we rely on reader's intuition to
 explain Coq code fragments. Good introductions to Coq are avaliable elsewhere%~\cite{Chlipala13}%.
 
 %\section{Basic Definitions}\label{sec:definitions}%
 
-First, we consider formulas of a minimal fragment of propositional logics which is formed only by the constant
+First, we consider formulas of a minimal fragment of propositional logic which is formed only by the constant
 %\emph{falsum}% (%$\bot$%) and logic implication (%$\supset$%). Following common
-practice, we denote contexts by a list of formulas. The following Coq snipetts
+practice, we denote contexts by a list of formulas. The following Coq snippets
 declare these concepts.
 
 %\begin{minipage}[c]{0.3\textwidth}%
@@ -65,8 +63,8 @@ Definition ctx := list form.
 (**
 %\end{minipage}%
 %\begin{minipage}[c]{0.6\textwidth}%
-While types for formulas ([form]) and contexs ([ctx]) have an immediate interpretation, the previous types
-miss an important part of propositional logic: variables. We represent variables by an inductive judgement
+While types for formulas ([form]) and contexts ([ctx]) have an immediate interpretation, the previous types
+miss an important part of propositional logic: the variables. We represent variables by an inductive judgment
 which states the membership of a formula in a context.
 %\end{minipage}%
 
@@ -89,7 +87,7 @@ Inductive var : ctx -> form -> Type :=
 %\]%
 %\end{minipage}%
 The first constructor of type [var] specifies that a formula %$\alpha$% is in the context %$\alpha :: \Gamma$% and
-the constructor [There] specifies that if a formula %$\alpha$% is in %$\Gamma$% then we have
+the constructor [There] specifies that if a formula %$\alpha$% is in %$\Gamma$%, then we have
  %$\alpha \in (\beta :: \Gamma)$%, for any formula %$\beta$%.
 
 Using the previous definitions, we can implement natural deduction rules for our minimal logic, as presented below.
@@ -131,13 +129,13 @@ Inductive nd : ctx -> form -> Type :=
 %\]%
 %\end{minipage}%
 
-The first rule ([Id]) stabilishes that any formula in the context is provable and rule [ExFalsum] defines
-the principle %\emph{ex-falsum quod libet}% which allow us to prove any formula if we have a deduction of [Falsum].
+The first rule ([Id]) estabilishes that any formula in the context is provable and rule [ExFalsum] defines
+the principle %\emph{ex-falsum quodlibet}%, which allows us to prove any formula if we have a deduction of [Falsum].
 Rule [Implies_I] specifies that from a deduction of a formula [p] from a context [p' :: G], [nd (p' :: G) p],
 we can prove the implication [Implies p' p]. The last rule, [Implies_E], represents the well-known %\emph{modus-ponens}%,
 which allows us to deduce a formula [p] from deductions of [Implies p' p] and [p'].
 
-Next section uses the relation between logics and %$\lambda$%-calculus and its evaluation to prove the consistency of
+The next section uses the relation between logic and %$\lambda$%-calculus and its evaluation to prove the consistency of
 minimal logic.
 *)
 
@@ -178,7 +176,7 @@ Program Fixpoint sem_ctx (G : ctx) : Type :=
 (**
 Function [sem_ctx] recurses over the structure of the input context building
 right-nested tuple ending with the Coq [unit] type, which is a type with a
-unique element. Since context are mapped intro tuples, variables must be
+unique element. Since contexts are mapped intro tuples, variables must be
 mapped into projections on such tuples. This would allow us to retrieve the
 value associated with a variable in a context.
 *)
@@ -192,16 +190,16 @@ Program Fixpoint sem_var {G p}(v : var G p) : sem_ctx G -> sem_form p :=
 Function [sem_var] receives a variable (value of type [var G p]) and a semantics
 of a context (a value of type [sem_ctx G]) and returns the value of the formula
 represented by such variable. Whenever the variable is built using constructor [Here],
-we just return the first component of the input context semantics and when we have
-the constructor [There] we just call  [sem_var] recursively.
+we just return the first component of the input context semantics, and when we have
+the constructor [There], we just call  [sem_var] recursively.
 
 Our next step is to define the semantics of natural deduction proofs. The semantics of
-proofs is implemented by function [sem_nat_ded] which maps proofs (values of type [nat_ded G p])
+proofs is implemented by function [sem_nat_ded], which maps proofs (values of type [nat_ded G p])
 and context semantics (values of type [sem_ctx G]) to the value of input proof conclusion
 (type [sem_form p]). The first case specifies that the semantics of an identity rule proof
 (constructor [Id]) is just retrieving the value of the underlying variable in the context semantics
-by calling function [sem_var]. Second case deals with [ExFalsum] rule: we recurse over the proof
-object [Hf] which will produces a Coq object of type [False], which is empty and so we can finish the
+by calling function [sem_var]. The second case deals with [ExFalsum] rule: we recurse over the proof
+object [Hf] which will produce a Coq object of type [False], which is empty and so we can finish the
 definition with an empty pattern match. Semantics of implication introduction ([Implies_I]) simply
 recurses on the subderivation [Hp] using an extended context [(v' , env)]. Finally, we define the
 semantics of implication elimination as simply function application of the results of the
@@ -212,17 +210,15 @@ Program Fixpoint sem_nat_ded {G p}(H : nat_ded G p)
   : sem_ctx G -> sem_form p :=
   match H with
   | Id v => fun env => sem_var v env
-  | ExFalsum Hf => fun env =>
-      match sem_nat_ded Hf env with
-      end
+  | ExFalsum Hf => fun env => match sem_nat_ded Hf env with end
   | Implies_I Hp => fun env v' => sem_nat_ded Hp (v' , env)
   | Implies_E Hp Ha => fun env => (sem_nat_ded Hp env) (sem_nat_ded Ha env)
   end. 
 
 (**
-Using all thoses previously defined pieces we can prove the consistency of our little natural
+Using all those previously defined pieces, we can prove the consistency of our little natural
 deduction system merely by showing that it should not be the case that we have a proof of [Falsum]
-using the empty set of assumptions. We can proof such fact by exhbiting a term of type
+using the empty set of assumptions. We can prove such fact by exhibiting a term of type
 [nat_ded [] Falsum -> False]%\footnote{Here we use the fact that $\neg \alpha$ is
 equivalent to $\alpha \supset \bot$.}%, which is trivially done by using function [sem_nat_ded].
  *)
@@ -237,7 +233,8 @@ In this work we briefly describe a Coq formalization of a semantics based consis
 minimal propositional logic. The complete proof is only 85 lines long and only use of some basic
 dependently typed programming features of Coq. We also
 formalize the consistency of this simple logic in Coq using Gentzen's admissibility of cut approach
-which resulted in around 270 lines of code and uses some extra proof tactics libraries.
+which resulted in longer formalization: the formalization has around 270 lines of code, which were much
+simplified by using some tactics libraries.
 As future work, we intend to extend the current formalization to full propositional logic and also
 other formalisms like Hilbert systems and analytic tableaux%~\cite{smullyan1995first}%.
  *)

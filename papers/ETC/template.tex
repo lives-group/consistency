@@ -39,12 +39,12 @@
 \begin{abstract}
   Consistency is a key property of any logical system. However, proofs of
   consistency usually rely on heavy proof theory notions like admissibility
-  of cut. A more semantics based approach to consistency proofs is to explore the
+  of cut. A more semantics-based approach to consistency proofs is to explore the
   correspondence between a logics and its relation with the
   evaluation in a $\lambda$-calculus, known as Curry-Howard isomorphism.
   In this work, we describe a Coq formalization of consistency of minimal
   propositional logics using this semantics approach and compare it with 
-  the traditional approaches used in proof theory.
+  the traditional ones used in proof theory.
 \end{abstract}
 
 \input{consistency.tex}
@@ -126,7 +126,7 @@ sequent calculus rule counter-part for implication elimination is called
 implication left rule, which states that we can conclude any formula $\gamma$
 in a context $\Gamma$ if we have that: 1) $\alpha \supset \beta \in \Gamma$;
 2) $\Gamma \Rightarrow \alpha$ and 3) $\Gamma \cup \{\beta\} \Rightarrow
-\gamma$. The rules for the sequent-calculus an its correspondent Coq
+\gamma$. The rules for the sequent-calculus and its correspondent Coq
 implementation are presented next.
 
 \begin{minipage}[c]{0.6\textwidth}
@@ -205,7 +205,7 @@ hypothesis. From the next lemma, admissibility is just a corollary.
   Immediate consequence of Lemmas~\ref{lemma:weak} and~\ref{lemma:admissibility}.
 \end{proof}
 
-Consistency of sequent calculus trivially by inspection on the structure of
+Consistency of sequent calculus trivially follows by inspection on the structure of
 derivations.
 
 \begin{Theorem}[Consistency of sequent calculus]\label{theorem:consistency}
@@ -215,7 +215,8 @@ derivations.
   Immediate from the sequent calculus rules (there is no rule to introduce $\bot$).
 \end{proof}
 
-The Coq code for all these proofs can be found in file SequentCalculus.v
+The Coq code for all these proofs can be found in file
+\href{https://github.com/rodrigogribeiro/consistency-coq/blob/master/Minimal/SequentCalculus.v}{SequentCalculus.v}
 on-line~\cite{Sasdelli20}.
 
 The next step in the mechanization of the
@@ -223,7 +224,8 @@ consistency of our minimal logic is to stabilish the equivalence between sequent
 calculus and natural deduction systems. The equivalence proofs between these two
 formalism are based on a routine induction on derivations using admissibility of
 cut. We omit its description for brevity. The complete proofs of these
-equivalence results can be found in file NatDed.v in the source code
+equivalence results can be found in file
+\href{https://github.com/rodrigogribeiro/consistency-coq/blob/master/Minimal/NatDed.v}{NatDed.v} in the source code
 repository~\cite{Sasdelli20}.
 
 Finally, we can prove the consistency of natural deduction by combining the
