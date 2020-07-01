@@ -35,7 +35,7 @@ The students were encouraged to ``find the answer'' by formalizing it in proof a
 After some months following basic exercices on Agda and Coq on-line text books~\cite{plfa2019,Pierce18},
 they were able to start the formalization of consistency for propositional logics. This work reports on
 the Coq formalization of two different approaches for consistency proofs for a minimal version of
-propositional logics and briefly discuss an Agda formalization of the same results also considering
+propositional logics and briefly discuss an alternative Agda formalization of the same results also considering
 the conjunction and disjunction connectives. We are aware that more extensive formalizations of propositional logic already
 exists in Coq~\cite{doorn2015} and other proof assistants~\cite{Nipkow17}. However, our focus is
 on showing how a better understanding of the Curry-Howard correspondence can lead to simple formalizations
@@ -567,48 +567,114 @@ $\lambda$-calculus is essentially the same as our Coq implementation, we will fo
 on the admissibility of cut version.
 
 
-One important design decision of our Agda proof was how to represent a permutation
-relation between contexts. In our Coq code we simply ``lift'' the boolean list membership test to
-set equality relation and use facilities offered by small-scale reflection and type classes
-to ease evidence construction~\cite{GonthierM10,GonthierZND11}.
+One important design decision of our Agda proof was how to represent contexts. While
+our Coq proof consider contexts as sets, i.e., operations and relations over contexts
+are implemented in order to not take in account the element order and their multiplicity,
+the Agda version implements contexts as multi-sets of formulas. We follow this approach
+mainly because it fits better as an inductive predicate for expressing permutations.
+Dealing with sets in Coq was easy mainly because of the facilities offered by small-scale reflection
+and type classes which ease evidence construction~\cite{GonthierM10,GonthierZND11}. The inductive
+type that encode context permutations is as follows:
+
+\begin{lstlisting}[language=haskell]
+data _~_ : Context -> Context -> Set where
+  Done  : [] ~ []
+  Skip  : G ~ G' -> (t :: G) ~ (t :: G')
+  Swap  : (t :: t' :: G) ~ (t' :: t :: G)
+  Trans : G ~ G1 -> G1 ~ G' -> G ~ G'
+\end{lstlisting}
+
+The first rule simply states that an empty list can only be a permutation of itself. Rule \lstinline|Skip|
+shows that if \lstinline|G ~ G'| then including an element in both lists allows for building a bigger
+permutation, rule \lstinline|Swap| allows the exchange of two adjacent list elements and \lstinline|Trans|
+guarantee that permutation is a transitive relation. Using the permutation relation, we encode an
+inductive type to represent sequent calculus rules.
+
+\begin{lstlisting}[language=haskell]
+data _=>_ : Context -> Form -> Set where
+  init : A :: G => A
+  -- some code omitted for brevity...
+  exchange : G ~ D  -> G => C -> D => C
+\end{lstlisting}
+
+In our Agda encoding of the sequent calculus we explicitly use a constructor for using the exchange rule
+which specifies that permutations of contexts do not change provability. Instead of using a list provability
+predicate, our sequent calculus presentation demands that the formula proved by initial sequent
+(constructor \lstinline|init|) is the first element of the context.
+
+
+In order to prove admissibility of cut using this sequent calculus encoding, we proved some lemmas, namely weakening
+and contraction\footnote{The contraction rule allows the removal of duplicated hypothesis in context.}, which are
+proved by a simple induction on the input derivation. Using the proofs of weakening and contraction, we can implement
+the admissibility of cut theorem by the following Agda function.
+
+
+
+\begin{lstlisting}[language=haskell]
+=>-cut : Fuel       ->
+        G => A      ->
+        A :: G => C -> Maybe (G => C)
+=>-cut zero _ _ = nothing
+=>-cut (suc n) init E
+   = =>-contraction n E
+=>-cut (suc n) D init
+   = just D
+=>-cut (suc n) (AndR D D1) (AndL E)
+    with (=>-cut n (=>-weakening D) E)
+...    | nothing = nothing
+...    | just x  = =>-cut n (AndR D D1) x
+-- some code omitted for brevity
+\end{lstlisting}
+
+
+
+Instead of using nested induction (or induction on a well-founded relation~\cite{Bertot04}), we implement the
+admissibility of cut using fuel based recursion. While is certainly possible to use nested inductions
+(like in our proof in Coq) in Agda, it would unnecessarily clutter the presentation of our results. It is worth to
+mention that the use of fuel in the admissibility was only necessary to please Agda's termination checker. Similar
+approachs were used in the context of programming languages meta-theory~\cite{Amin17}.
 
 
 \section{Lessons learned}\label{sec:lessons}
 
 
 Previous sections presented two different formalizations for consistency of minimal
-propositional logic in Coq proof assistant. In this section, we briefly resume the
+propositional logic in Coq and Agda proof assistants. In this section, we briefly resume the
 main characteristics of each approach and try to draw some conclusions on the
 realized proof effort.
 
 
-The first strategy is inspired by the Curry-Howard correspondence and it is,
+The first proof strategy used was inspired by the Curry-Howard correspondence and it is,
 in essence, a well-typed interpreter for the
 simply-typed $\lambda$-calculus. The consistency is ensured by construct a term
 that asserts that is impossible to build a term of type \coqdocvar{Falsum} from an empty
 context, which is done by a simple call to the $\lambda$-calculus interpreter.
-The complete formalization is 85 lines long and we only use the \coqdocvar{Program} construct
+In Coq, the complete formalization is 85 lines long and we only use the \coqdocvar{Program} construct
 which eases the task of dependently-typed pattern matching, which is necessary
 to construct functions which manipulate richly typed structures like type \coqdocvar{var} or
 build types from values like \coqdocvar{sem\_form} and \coqdocvar{sem\_ctx}. No standard tactic or
-tatic library is used to finish the formalization.
+tatic library is used to finish the formalization. The Agda version of this proof
+follows essentially the same idea and has around 50 lines of code.
 
 
 The second strategy implements the usual proof theoretical approach to guarantee
-the consistency of logics. As briefly described in the previous section, proving
+the consistency of logics. As briefly described in the previously, proving
 the admissibility of cut needs nested inductions on the structure of the cut-formula
 and on the structure of the sequent-calculus derivations. The main problem on proving
 the cut lemma is the bureocratic adjustement of contexts by using weakening in the
 right places in the proof. Our proof uses some tactics libraries~\cite{Chlipala13, Pierce18}
 and type class based automation to automatically produce proof terms for subset relation
 between contexts. Our cut-based consistency proof has around 270 lines of code without
-considering the tactics libraries used. 
+considering the tactics libraries used. The Agda version of Gentzen style consistency demanded
+much more effort due to the lack of proof automation which resulted in more than 700 lines to conclude
+the proof.
 
 
-When comparing the both approachs, it is obvious that the second demands approximately
-3 times more lines of code than the first. However, while demanding more code,
-the cut-based proof essentially follows the ideas used in proof-theory textbooks.
-One of main difficulties in formalizing the Gentzen style proof was the correct handling of
+When comparing the both approachs (Gentzen style vs semantic-based style), it is obvious that the
+first demands approximately 3 times more lines of code than the first in Coq and more than 10
+times in Agda (around 700 LOC).
+However, while demanding more code, the cut-based proof essentially follows the ideas used in
+proof-theory textbooks. One of main difficulties in formalizing the Gentzen style proof was the correct handling of
 weakening. The usage of proof automation tools and Coq type classes had a great impact
 on the simplification of these results.
 The semantics-based proof rely on the relation between the minimal propositional logic and
@@ -630,24 +696,27 @@ future work. Another formalization of propositional logic was implemented by Mic
 covered several proof systems (sequent calculus, natural deduction, Hilbert systems, resolution) and proved the some
 important meta-theoretic results like: compactness, translations between proof systems, cut-elimination and model existence.
 
+
 A formalization of linear logic was conducted by Allais and McBride~\cite{allais18}. In essence, Allais and McBride work
 starts from a well-scoped $\lambda$-calculus and introduce a typed representation which leads to a intuitionistic version
 of linear logic which uses a relation that ensure the resource control behavior of linear logic proofs. Another work which
 formalizes linear logic was developed by Xavier et. al~\cite{xavier18}. The main novelty of their work was the formalization
 of a focused linear logic using a binding representation called parametric high-order abstract syntax (PHOAS)~\cite{Chlipala08}.
 
+
 \paragraph{Applications of proof assistants.}
 
-Ribeiro and Du Bois~\cite{Ribeiro2017} described the formalization of a RE
-(regular expression) parsing algorithm that produces a bit representation
-of its parse tree in the dependently typed language Agda. The algorithm computes bit-codes using Brzozowski derivatives and
-they proved that the produced codes are equivalent to parse trees ensuring soundness and completeness with respect to an
-inductive RE semantics. They included the certified algorithm in a tool developed by themselves, named verigrep, for RE-based
-search in the style of GNU grep. While the authors provided formal proofs, their tool show a bad performance when compared to
-other approaches to RE parsing.
 
+Recently, the interest on such interpreters was revitalized by~\citet{Amin17}, which used definitional
+interpreters, implemented in Coq, to prove type soundness theorems for non-trivial typed languages like System F$_{<:}$.
+Amin and Rompf's formalization uses fuel-based interpreters to represent semantics and they argue that presence of
+the artificial fuel argument does not invalidate semantics results and allow for a better distinction between timeouts,
+errors and normal values thus leading to stronger results.
+
+
+Proof assistants has been used with some success to classical results of parsing and automata theory.
 A formal constructive theory of RLs (regular language) was presented by Doczkal et. al. in
-\cite{Doczkal2013}. They formalized some fundamental results about RLs.
+\cite{Doczkal13}. They formalized some fundamental results about RLs.
 For their formalization, they used the Ssreflect extension to Coq, which
 features an extensive library with support for reasoning about finite
 structures such as finite types and finite graphs. They established all
@@ -658,10 +727,52 @@ minimal DFAs and NFAs (non-deterministic finite automata).
 They formalized all these (and other) representations and constructed
 computable conversions between them. Besides other interesting aspects
 of their work, they proved the decidability of language equivalence
-for all representations. Unlike our work, Doczkal et. al.'s only concerns
-about formalizing classical results of RL theory in Coq, without using the
-formalized automata in practical applications, like matching or parsing.
+for all representations. Ribeiro and Du Bois~\cite{Ribeiro17} described the formalization of a RE
+(regular expression) parsing algorithm that produces a bit representation
+of its parse tree in the dependently typed language Agda. The algorithm computes bit-codes using Brzozowski derivatives and
+they proved that the produced codes are equivalent to parse trees ensuring soundness and completeness with respect to an
+inductive RE semantics. They included the certified algorithm in a tool developed by themselves, named verigrep, for RE-based
+search in the style of GNU grep. While the authors provided formal proofs, their tool show a bad performance when compared to
+other approaches to RE parsing. Ridge~\cite{Ridge2011} describes a formalization, in the HOL4 theorem
+prover, of a combinator parsing library. A parser generator for such
+combinators is described and a proof that generated parsers are sound
+and complete is presented.  According to Ridge, preliminary results
+shows that parsers built using his generator are faster than those
+created by the Happy parser generator~\cite{Happy}.
+Firsov describes an Agda formalization of a parsing algorithm that
+deals with any CFG (CYK algorithm)~\cite{Firsov2014}. Bernardy
+et al. describe a formalization of another CFG parsing algorithm in
+Agda~\cite{BernardyJ16}: Valiant's algorithm~\cite{Valiant1975}, which
+reduces CFG parsing to boolean matrix multiplication. 
 
+
+Type systems and type inference algorithms has been subject of several formalization efforts
+reported in the literature (c.f.~\cite{DuboisM99,NaraschewskiN-JAR,Nazareth-Nipkow,UrbanN2009,Garrigue10,Garrigue15}).
+The first works on formalizing type inference are by Nazareth and
+Narascewski in Isabelle/HOL~\cite{NaraschewskiN-JAR,Nazareth-Nipkow}.
+Both works focus on formalizing the well-known algorithm
+W\~{}\symbol{92}cite\{Milner78\}, but unlike our work, they don't provide a verified
+implementation of unification. They assume all the necessary
+unification properties to finish their certification of type
+inference. The work of Dubois~\cite{DuboisM99} also postulates
+unification and prove properties of type inference for ML using the
+Coq proof assistant system.  Nominal techniques were used by
+Urban~\cite{UrbanN2009} to certify algorithm W in Isabelle/HOL using
+the Nominal package. As in other works, Urban just assumes properties
+that the unification algorithm should have without formalizing it.
+
+
+Full formalizations of type inference for ML with structural
+polymorphism was reported by Jacques
+Garrigue~\cite{Garrigue10,Garrigue15}. He fully formalizes
+interpreters for fragments of the OCaml programming language. Since
+the type system of OCaml is far more elaborate than STLC, his work
+involves a more substantial formalization effort than the one reported
+in this work. Garrigue's formalization of unification avoids the
+construction of a well-founded relation for constraints by defining
+the algorithm by using a ``bound'' on the number of allowed recursive
+calls made.  Also, he uses libraries for dealing with bindings using
+the so-called locally nameless approach~\cite{Chargueraud12}.
 
 
 \section{Conclusion}\label{sec:conclusion}
@@ -672,10 +783,12 @@ minimal propositional logic. The complete proof is only 85 lines long and only u
 dependently typed programming features of Coq. We also
 formalize the consistency of this simple logic in Coq using Gentzen's admissibility of cut approach
 which resulted in longer formalization: the formalization has around 270 lines of code, which were much
-simplified by using some tactics libraries.
+simplified by using some tactics libraries. We also report on our efforts to reproduce the same proof
+on Agda programming language which, due to the lack of proof automation, demanded more lines of code
+to express similar results.
 
 
 As future work, we intend to extend the current formalization to full propositional logic and also
-other formalisms like Hilbert systems and analytic tableaux~\cite{smullyan1995first}.
+other formalisms like Hilbert systems and resolution.
  \begin{coqdoccode}
 \end{coqdoccode}
