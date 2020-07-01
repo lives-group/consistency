@@ -1,0 +1,144 @@
+\documentclass[manuscript, review,sigconf]{acmart}
+
+\citestyle{acmnumeric}
+\usepackage{booktabs} % For formal tables
+
+\usepackage{graphicx,url}
+%\usepackage[brazil]{babel}
+\usepackage[latin1]{inputenc}  
+\usepackage{amsmath, amsthm, amssymb}
+\usepackage{enumitem}
+\usepackage{proof}
+\usepackage{coqdoc}
+\usepackage{listings,lstlangcoq,bold-extra}
+\lstset{basicstyle=\ttfamily,language=Coq,showstringspaces=false}
+
+\theoremstyle{definition}
+\newtheorem{Theorem}{Theorem}
+\newtheorem{Corollary}{Corollary}
+\newtheorem{Lemma}{Lemma}
+
+\newlist{Cases}{enumerate}{4}
+\setlist[Cases]{align=left,
+                 listparindent=\parindent, 
+                 parsep=\parskip, 
+                 font=\normalfont\bfseries, 
+                 leftmargin=0pt,
+                 labelwidth=0pt, 
+                 itemindent=.4em,labelsep=.4em,
+                 partopsep=0pt
+                 }
+
+\setlist[Cases,1]{label=Case~\arabic*:,ref=\arabic*}
+\setlist[Cases,2]{label=Case~\theCasesi.\roman*:,ref=\theCasespi.\roman*}
+\setlist[Cases,3]{label=Case~\theCasesii.\alph*:,ref=\theCasespii.\alph*}
+
+\makeatother
+
+
+% Metadata Information
+\acmConference[SBLP2020]{XXIV BRAZILIAN SYMPOSIUM ON PROGRAMMING LANGUAGES}{September 23--27, 2020}{Natal}
+
+%\acmVolume{9}
+%\acmNumber{4}
+%\acmArticle{39}
+%\acmYear{2010}
+%\acmMonth{3}
+
+%\acmBadgeL[http://ctuning.org/ae/ppopp2016.html]{ae-logo}
+%\acmBadgeR[http://ctuning.org/ae/ppopp2016.html]{ae-logo}
+
+% Copyright
+\setcopyright{acmcopyright}
+%\setcopyright{acmlicensed}
+%\setcopyright{rightsretained}
+%\setcopyright{usgov}
+%\setcopyright{usgovmixed}
+%\setcopyright{cagov}
+%\setcopyright{cagovmixed}
+
+% DOI
+\acmDOI{}
+
+\title{Syntax vs Semantics: Comparing Consistency Proofs for Minimal
+  Propositional Logics}
+
+\author{Felipe Sasdelli}
+\email{felipe.sasdelli@aluno.ufop.edu.br}
+\affiliation{%
+  \department{Departamento de Computa\c{c}\~ao}
+  \institution{Universidade Federal de Ouro Preto}
+  %\city{Ouro Preto}
+  %\state{Minas Gerais}
+  %\country{Brazil}
+}
+
+\author{Maycon Amaro}
+\email{maycon.amaro@aluno.ufop.edu.br}
+\affiliation{%
+  \department{Departamento de Computa\c{c}\~ao}
+  \institution{Universidade Federal de Ouro Preto}
+  %\city{Ouro Preto}
+  %\state{Minas Gerais}
+  %\country{Brazil}
+}
+
+\author{Samuel Feitosa}
+\email{samuel.feitosa@ifsc.edu.br}
+\affiliation{%
+  \institution{Departamento de Informática}
+  \streetaddress{Instituto Federal de Santa Catarina}
+  \city{Caçador}
+  \state{Santa Catarina}
+  \country{Brazil}
+}
+
+\author{Rodrigo Ribeiro}
+\email{rodrigo.ribeiro@ufop.edu.br}
+\affiliation{%
+  \department{Programa de P\'os-Gradua\c{c}\~ao em Ci\^encia da Computa\c{c}\~ao}
+  \institution{Universidade Federal de Ouro Preto}
+  %\city{Ouro Preto}
+  %\state{Minas Gerais}
+  %\country{Brazil}
+}
+
+% Document starts
+\begin{document}
+
+\begin{abstract}
+  Consistency is a key property of any logical system. However, proofs of
+  consistency usually rely on heavy proof theory notions like admissibility
+  of cut. A more semantics-based approach to consistency proofs is to explore the
+  correspondence between a logics and its relation with the
+  evaluation in a $\lambda$-calculus, known as Curry-Howard isomorphism.
+  In this work, we describe and present a comparison between two Coq
+  formalizations of consistency of minimal propositional logic: one using a
+  semantic-based approach and another following the traditional syntatic proof
+  theoretical approach.
+\end{abstract}
+
+\begin{CCSXML}
+<ccs2012>
+<concept>
+<concept_id>10003752.10003790.10003792</concept_id>
+<concept_desc>Theory of computation~Proof theory</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+</ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Theory of computation~Proof theory}
+
+\keywords{Consistency, Curry-Howard Isomorphism, Coq proof assistant}
+
+\maketitle
+
+\renewcommand{\shortauthors}{Sasdelli et al.}
+
+\input{consistency.tex}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{template}
+
+\end{document}

@@ -5,6 +5,7 @@
 %\usepackage[brazil]{babel}
 \usepackage[latin1]{inputenc}  
 \usepackage{amsmath, amsthm, amssymb}
+\usepackage{enumitem}
 \usepackage{proof}
 \usepackage{coqdoc}
 \usepackage{listings,lstlangcoq,bold-extra}
@@ -25,13 +26,26 @@
 }
 
 \theoremstyle{definition}
-
 \newtheorem{Theorem}{Theorem}
-\newtheorem*{Theorem*}{Theorem}
 \newtheorem{Corollary}{Corollary}
 \newtheorem{Lemma}{Lemma}
 
+\newlist{Cases}{enumerate}{4}
+\setlist[Cases]{align=left,
+                 listparindent=\parindent, 
+                 parsep=\parskip, 
+                 font=\normalfont\bfseries, 
+                 leftmargin=0pt,
+                 labelwidth=0pt, 
+                 itemindent=.4em,labelsep=.4em,
+                 partopsep=0pt
+                 }
 
+\setlist[Cases,1]{label=Case~\arabic*:,ref=\arabic*}
+\setlist[Cases,2]{label=Case~\theCasesi.\roman*:,ref=\theCasespi.\roman*}
+\setlist[Cases,3]{label=Case~\theCasesii.\alph*:,ref=\theCasespii.\alph*}
+
+                 
 \begin{document} 
 
 \maketitle
@@ -153,8 +167,8 @@ Inductive sc : ctx -> form -> Prop :=
 \begin{array}{c}
 \infer[_{\{Id\}}]{\Gamma \Rightarrow x}{x \in \Gamma} \\ \\
 \infer[_{\{Ex\}}]{\Gamma \Rightarrow \alpha}{\Gamma \Rightarrow \bot}\\ \\
-\infer[_{\{\supset-I\}}]{\Gamma \Rightarrow \alpha \supset \beta}{\Gamma \cup \{\alpha\} \Rightarrow \beta}\\ \\
-  \infer[_{\{\supset-E\}}]{\Gamma \Rightarrow \gamma}{\begin{array}{c}
+\infer[_{\{\supset-R\}}]{\Gamma \Rightarrow \alpha \supset \beta}{\Gamma \cup \{\alpha\} \Rightarrow \beta}\\ \\
+  \infer[_{\{\supset-L\}}]{\Gamma \Rightarrow \gamma}{\begin{array}{c}
                                                        \alpha \supset \beta \in
                                                         \Gamma \\
                                                         \Gamma \Rightarrow
@@ -181,6 +195,33 @@ not change provability.
 \end{Lemma}
 \begin{proof}
   By structural induction on the derivation of $\Gamma \Rightarrow \alpha$.
+  \begin{Cases}
+    \item Last rule in the derivation of $\Gamma \Rightarrow \alpha$ was $Id$: In this
+    situation, we have that $\alpha \in \Gamma$. Since $\Gamma \subseteq
+    \Gamma'$, we have that $\alpha \in \Gamma'$ and the conclusion follows by
+    rule $Id$.
+    \item Last rule in the derivation of $\Gamma \Rightarrow \alpha$ was $Ex$: In this 
+    case, we have that $\Gamma \Rightarrow \bot$. By the induction hypothesis on 
+    $\Gamma \Rightarrow \bot$ we have that $\Gamma' \Rightarrow \bot$ and the 
+    conclusion follows by rule $Ex$.
+    \item Last rule in the derivation of $\Gamma \Rightarrow \alpha$ was $\supset-R$:
+    In this situation, we have that $\Gamma \cup \{\alpha\} \Rightarrow \beta$.
+    Since we have that $\Gamma \subseteq \Gamma'$, it follows that
+    $\Gamma \cup \{\alpha\} \subseteq \Gamma' \cup \{\alpha\}$. By the induction
+    hypothesis on $\Gamma \cup \{\alpha\} \Rightarrow \beta$, we have that
+    $\Gamma' \cup \{\alpha\} \Rightarrow \beta$ and conclusion follows by rule
+    $\supset-R$.
+    \item Last rule in the derivation of $\Gamma \Rightarrow \alpha$ was $\supset-L$:
+    In this situation, we have that: 1) there exists $\gamma \supset \beta \in
+    \Gamma$; 2) $\Gamma \Rightarrow \gamma$ and 3) 
+    $\Gamma \cup \{\beta\} \Rightarrow \alpha$. Since, $\gamma \supset
+    \beta \in \Gamma$ and $\Gamma \subseteq \Gamma'$, we have that
+    $\gamma\supset \beta \in \Gamma'$. Also, we have that
+    $\Gamma' \Rightarrow \gamma$ and $\Gamma' \cup \{\beta\}\Rightarrow \alpha$
+    by the induction hypothesis on $\Gamma\Rightarrow \gamma$ and
+    $\Gamma \cup \{\beta\} \Rightarrow \alpha$, respectively. Conclusion follows
+    by rule $\supset-L$.
+  \end{Cases}
 \end{proof}
 
 Using weakening property we can prove a generalized version of admissibility of
@@ -192,9 +233,111 @@ hypothesis. From the next lemma, admissibility is just a corollary.
   \cup (\Gamma' - \{\alpha\}) \Rightarrow \beta$.
 \end{Lemma}
 \begin{proof}
-  By structural induction on $\alpha$ using Lemma~\ref{lemma:weak} and
-  nested inductions on $\Gamma \Rightarrow \alpha$ and
-  $\Gamma' \Rightarrow \beta$, when needed.
+  By structural induction on $\alpha$.
+  \begin{Cases}
+     \item $\alpha = \bot$: Now, we proceed by induction on
+       $D : \Gamma \Rightarrow \bot$.
+    \begin{Cases}
+      \item Last rule used in deriving $\Gamma \Rightarrow \bot$ was Id: In this
+            situation, we have a contradiction (Var n = Falsum), and the desired
+            result follows.
+      \item Last rule used in deriving $\Gamma \Rightarrow \bot$ was Ex: We have that
+            $\bot \in \Gamma$ and $\Gamma' \Rightarrow \beta$. Conclusion follows by
+            rule $Ex$ and the fact that $\bot \in (\Gamma \cup (\Gamma' -
+            \{\bot\}))$.
+      \item Last rule used in deriving $\Gamma\Rightarrow \bot$ was $\supset-R$:
+            In this case we have a contradiction (Implies a b = Falsum), and the
+            desired result follows.
+      \item Last rule used in deriving $\Gamma\Rightarrow \bot$ was $\supset-L$:
+            In this case we have that: 1) $A \supset B \in \Gamma$; 2)
+            $\Gamma \Rightarrow A$ and 3) $\Gamma' \cup \{B\} \Rightarrow \bot$. By
+            weakening on $\Gamma \Rightarrow A$ we have that
+            $\Gamma \cup (\Gamma' -\{B\})\Rightarrow A$. By the induction hypothesis
+            of derivation $D$, we have that
+            $\Gamma \cup \{B\} \cup (\Gamma' - \{\bot\}) \Rightarrow \beta$ and
+            conclusion follows by rule $\supset-L$.
+    \end{Cases}
+    \item $\alpha = (Var\:v)$: Now we proceed by induction on
+      $D : \Gamma \Rightarrow Var\:v$.
+      \begin{Cases}
+         \item Last rule used in deriving $\Gamma \Rightarrow (Var\:v)$ was Id:
+           In this situation, we have that $(Var\:v) \in \Gamma$. Since
+           $(Var\:v) \in \Gamma$, we have that $(Var\:v) \in \Gamma \cup (\Gamma'
+           - \{Var\:v\})$ and conclusion follows by rule Id.
+         \item Last rule used in deriving $\Gamma\Rightarrow (Var\:v)$ was Ex:
+           In this situation, we have that $\bot \in \Gamma$. Since $\bot \in
+           \Gamma$, we have $\bot \in \Gamma \cup (\Gamma' - \{Var\:v\})$ and
+           conclusion follows by rule Ex.
+         \item Last rule used in deriving $\Gamma\Rightarrow (Var\:v)$ was
+           $\supset-R$: In this situation, we have a contradiction, since
+           $Var\:v\neq a \supset b$, for some $a$ and $b$.
+         \item Last rule used in deriving $\Gamma\Rightarrow (Var\:v)$ was
+           $\supset-L$: In this situation, there exists $a, b$ such that
+           $a \supset b \in \Gamma$, $\Gamma \Rightarrow a$ and
+           $\Gamma \cup \{b\} \Rightarrow (Var\:v)$. By weakening on
+           $\Gamma \Rightarrow a$, we have
+           $(\Gamma \cup \{b\})\cup(\Gamma' - \{Var\:v\}) \Rightarrow a$.
+           By the induction hypothesis on $\Gamma \cup \{b\} \Rightarrow
+           (Var\:v)$, we have
+           $\Gamma \cup \{b\} \Rightarrow (Var\:v) \Rightarrow b$.
+           Conclusion follows by rule $\supset-L$.
+      \end{Cases}
+    \item $\alpha = a_1 \supset a_2$: Now, we proceed by induction on
+      $D : \Gamma \Rightarrow (a_1 \supset a_2)$.
+      \begin{Cases}
+        \item Last rule used in deriving $\Gamma \Rightarrow (a_1 \supset a_2)$ was
+          Id: This case is a contradiction, since it is not possible that
+          $Var\:v = a_1\supset a_2$.
+        \item Last rule used in deriving $\Gamma \Rightarrow (a_1 \supset a_2)$ was
+          Ex: In this case, we have that $\bot \in \Gamma$. Since
+          $\bot \in \Gamma$, we have that
+          $\bot \in \Gamma \cup (\Gamma' - \{a_1 \supset a_2\})$ and conclusion
+          follows by rule Ex.
+        \item Last rule used in deriving $\Gamma \Rightarrow (a_1 \supset a_2)$ was
+          $\supset-R$: Now we proceed by induction on $\Gamma' \Rightarrow
+          \beta$.
+          \begin{Cases}
+             \item Last rule used in deriving $\Gamma' \Rightarrow \beta$ was Id:
+               In this case, we have that $\beta = Var\:v$ and $Var\:v\in\Gamma'$.
+               Since $Var\:v \neq a_1\supset a_2$, we have that
+               $Var\:v\in\Gamma \cup (\Gamma' - \{a_1 \supset a_2\})$ and
+               conclusion follows by rule Id.
+             \item Last rule used in deriving $\Gamma' \Rightarrow \beta$ was
+               Ex: In this case, we have that $\bot \in \Gamma'$. Since
+               $\bot \neq a_1 \supset a_2$, we have that
+               $\bot\in\Gamma \cup (\Gamma' - \{a_1 \supset a_2\})$ and
+               conclusion follows by rule Ex.
+             \item Last rule used in deriving $\Gamma' \Rightarrow \beta$ was
+               $\supset-R$: In this case, $\beta = a \supset b$, for some $a,b$.
+               Also, we have that $\Gamma' \cup \{a\}\Rightarrow b$. By the
+               induction hypothesis on $\Gamma' \cup \{a\}\Rightarrow b$, we
+               have that
+               $\Gamma \cup ((\Gamma' \cup \{a\}) - \{a_1 \supset
+               a_2\})\Rightarrow b$. Since we have 
+               $\Gamma \cup ((\Gamma' \cup \{a\}) - \{a_1 \supset
+               a_2\})\Rightarrow b$ then we also have
+               $\Gamma \cup (\Gamma' \cup \{a\} - \{a_1 \supset
+               a_2\}) \cup \{a\} \Rightarrow b$ and conclusion follows by rule
+               $\supset-R$.
+             \item Last rule used in deriving $\Gamma' \Rightarrow \beta$ was
+               $\supset-L$: In this situation, we have that
+               $a \supset b \in \Gamma'$, $\Gamma' \Rightarrow a$ and
+               $\Gamma' \cup \{b\} \Rightarrow \beta$. Let's consider that
+               $a \supset b = a_1 \supset a_2$. Now, we can deduce
+               $\Gamma \cup \Gamma' - \{a_1 \supset a_2\} \Rightarrow a_2$ by
+               the induction hypothesis on $\Gamma \cup \{a_1\} \Rightarrow a_2$
+               and weakening. Conclusion follows from weakening and
+               $\Gamma \cup \Gamma' - \{a_1 \supset a_2\} \Rightarrow a_2$.
+               Now, suppose that $a \supset b \neq a_1 \supset a_2$. Conclusion
+               follows by the weakening the induction hypothesis on
+               $\Gamma' \Rightarrow \beta$ and rule $\sup-L$.
+             \end{Cases}
+            \item Last rule used in deriving $\Gamma \Rightarrow (a_1 \supset a_2)$ was
+              $\supset-L$: By weakening on $\Gamma \Rightarrow a_1$ we have
+              $\Gamma \cup (\Gamma' 0 \{a_1 \supset a_2\}) \Rightarrow a_1$.
+              Conclusion follows from the induction hypothesis and rule $\supset-L$.
+          \end{Cases} 
+  \end{Cases}
 \end{proof}
 
 \begin{Corollary}[Admissibility of cut]

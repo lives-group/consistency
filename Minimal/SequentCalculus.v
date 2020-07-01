@@ -12,8 +12,7 @@ Inductive seq_calc : ctx -> form -> Prop :=
 | Id G a
   : (Var a) el G -> seq_calc G (Var a)
 | Falsum_L G a
-  : 
-    Falsum el G -> seq_calc G a
+  : Falsum el G -> seq_calc G a
 | Implies_R G a b
   : seq_calc (a :: G) b ->
     seq_calc G (Implies a b)
@@ -52,10 +51,11 @@ Lemma seq_calc_cut_lemma :
 Proof.
   intros G a G' b H.
   revert G G' b H.
-  induction a ; intros G G' b D E ; eauto.
+  induction a ; intros G G' b D E.
   - 
     remember Falsum as v.
-    induction D ; substs ; try congruence ; eauto.
+    induction D ; 
+      substs ; try congruence ; eauto.
     +
       eapply Implies_L ; eauto using weakening.
   -
@@ -81,8 +81,7 @@ Proof.
         **
           inverts K.
           assert (J : seq_calc (G ++ rem F (Implies a1 a2)) a2)
-            by
-              (apply weakening 
+           by   (apply weakening 
                  with (G := (G ++ rem F (Implies a1 a2)) ++ rem (a1 :: G) a1) ; auto).
           apply weakening
               with (G := (G ++ rem F (Implies a1 a2)) ++
@@ -93,7 +92,7 @@ Proof.
           apply Implies_L with (a := a)(b := b) ; auto.
           eapply (weakening IHE2). auto.
     +
-      eapply Implies_L ; eauto.
+      eapply Implies_L ; eauto. 
       eapply (weakening D1) ; auto.
 Qed. 
 

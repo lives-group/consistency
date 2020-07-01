@@ -149,7 +149,7 @@ Lemma list_cycle  (X : Type) (A : list X) x :
   x::A <> A.
 Proof.
   intros B.
-  assert (C: |x::A| <> |A|) by (simpl; omega).
+  assert (C: |x :: A| <> |A|) by (simpl; omega).
   apply C. now rewrite B.
 Qed.
 
