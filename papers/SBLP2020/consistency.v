@@ -22,7 +22,7 @@ entails a contradiction. Basically, consistency implies that not all formulas
 are provable.  While having a simple motivation, consistency proofs rely on
 the well-known admissibility of cut property, which has a rather delicate inductive proof.
 Gentzen, in his seminal work%~\cite{Gentzen36}%, gives the first consistency proof of logic by introducing an
-auxiliary formalism, the sequent calculus, in which consistency is trivial. Next, Gentzen showed
+auxiliary formalism, the sequent calculus, in which consistency is trivial. Next, Gentzen shows
 that the natural deduction system is equivalent to his sequent calculus extended with an
 additional rule: the cut rule. The final (and hardest) piece of Gentzen's proof is to 
 show that the cut rule is redundant, i.e., it is admissible. As a consequence, we know
@@ -40,14 +40,14 @@ In this work, we report on formalizing these two approachs for a minimal version
 propositional logics.
 
 This work results from a research project motivated by questions raised by
-undergraduate students on a first course on formal logics at Universidade Federal de Ouro Preto.
-The students were encouraged to "find the answer" by formalizing it in proof assistant systems.
-After some months following basic exercices on Agda and Coq on-line text books%~\cite{plfa2019,Pierce18}%,
-they were able to start the formalization of consistency for propositional logics. This work reports on
-the Coq formalization of two different approaches for consistency proofs for a minimal version of
-propositional logics and briefly discuss an alternative Agda formalization of the same results also considering
-the conjunction and disjunction connectives. We are aware that more extensive formalizations of propositional logic already
-exists in Coq%~\cite{doorn2015}% and other proof assistants%~\cite{Nipkow17}%. However, our focus is
+undergraduate students on a first course on formal logics at %\textbf{OMITTED DUE TO BLIND REVIEW}%.
+The students were encouraged to "find the answer" by formalizing them in proof assistant systems.
+After some months following basic exercises on Agda and Coq on-line text books%~\cite{plfa2019,Pierce18}%,
+they were able to start the formalization of consistency for propositional logics. This paper reports on
+the Coq formalization of two different approaches for consistency proofs of a minimal version of
+propositional logics and briefly discuss an alternative Agda formalization of the same results, also considering
+the conjunction and disjunction connectives. We are aware that there are more extensive formalizations of propositional logic 
+ in Coq%~\cite{doorn2015}% and other proof assistants%~\cite{Nipkow17}%. However, our focus is
 on showing how a better understanding of the Curry-Howard correspondence can lead to simple formalizations
 of mathematical results through its computational representation.
 
@@ -55,27 +55,29 @@ of mathematical results through its computational representation.
 More specifically, we contribute:
 
 %\begin{itemize}%
-   %\item We present a semantics-based consistency proof for minimal propositional logic in Coq.%
+   %\item We present a semantics-based consistency proof for a minimal propositional logic in Coq.%
    %Our proof is completely represented as Coq functions using dependently-typed pattern maching%
    %in less than 90 lines of code.%
    %\item We also formalize the traditional proof theoretical cut-based proof of consistency. Unlike the semantics-based%
    %proof, this formalization required the definition of several intermediate definitions and lemmas to complete the proof.%
-   %Instead of focusing on presenting tactic scripts, we outline the proof strategies used in the main lemmas used to ensure%
+   %Instead of focusing on presenting tactic scripts, we outline the proof strategies used in the main lemmas to ensure%
    %the consistency.%
-   %\item We formalize the same results in the context of a broader version of propositional logics in Agda
+   %\item We formalize the same results in the context of a broader version of propositional logics in the Agda
    programming language and present some conclusions obtained by coding these results in a different proof assistant.%
 %\end{itemize}%
 
 We organize this work as follows: Section %\ref{sec:definitions}% presents basic definitions
-about the logic considered and Section%~\ref{sec:coq}% presents a brief introduction to the Coq proof assistant.
+about the minimal logic considered and Section%~\ref{sec:coq}% presents a brief introductions
+to the Coq proof assistant and the Agda programming language.
 Section %\ref{sec:semantics}% describes the semantics-based proof of consistency
 implemented in  Coq and Section %\ref{sec:admissibility}% presents our formalization of Gentzen's style consistency proof.
 We briefly discuss our Agda formalization in Section%~\ref{sec:agda}%.
 Section %\ref{sec:lessons}% draws some lessons learned during the formalization of these consistency proofs.
 Finally, Section %\ref{sec:related}% presents related works and Section %\ref{sec:conclusion}% concludes.
 
-The complete formalization was verified using Coq version 8.10.2 and it is available
-on-line%~\cite{Sasdelli20}% together with the %\LaTeX~% files needed to build this work.
+The complete formalization was verified using Coq version 8.10.2 and Agda formalization was checked using Agda version 2.6.1 using the
+standard library version 1.6.3. All these results are available on-line%~\cite{Sasdelli20}% together with the %\LaTeX~% files
+needed to build this paper.
 
 %\section{Basic Definitions}\label{sec:definitions}%
 
@@ -100,9 +102,9 @@ formula %$\alpha$% can be deduced from the hypothesis present in %$\Gamma$% usin
 %\end{array}%
 %\]%
 
-Rule %$Id$% shows that any hypothesis in %$\Gamma$% is provable and rule %$Ex$% which specifies that from a
-contradiction we can deduce any formula. The rule %$\supset-I$% shows that we can deduce %$\alpha\supset \beta$%
-if we are able to prove %$\beta$% from %$\Gamma\cup\{\alpha\}$% and rule %$\supset-E$% is the well-known
+Rule %$Id$% shows that any hypothesis in %$\Gamma$% is provable and rule %$Ex$% specifies that from a
+contradiction we can deduce any formula. The rule %$\supset$-\textit{I}% shows that we can deduce %$\alpha\supset \beta$%
+if we are able to prove %$\beta$% from %$\Gamma\cup\{\alpha\}$% and rule %$\supset$-\textit{E}% is the well-known
 %\emph{modus ponens}% rule.
 
 We let notation %$\Gamma\Rightarrow\alpha$% denote that %$\alpha$% is deducible from the hypothesis in %$\Gamma$%
@@ -121,16 +123,17 @@ that: 1) %$\alpha \supset \beta \in \Gamma$%; 2) %$\Gamma \Rightarrow \alpha$% a
                                                         \Gamma &
                                                         \Gamma \Rightarrow
                                                         \alpha & \Gamma \cup
-                                                        \{\beta\}\vdash \gamma}}
+                                                        \{\beta\}\Rightarrow \gamma}}
 \end{array}
 \]
 %
 We say that the natural deduction system is consistent if there is no proof of %$\emptyset\vdash \bot$%. The same idea applies to sequent calculus.
-In the next section, we describe our Coq formalization of the consistency for natural deduction using a semantics-based approach.
 
-%\section{A Taste of Coq Proof Assistant}\label{sec:coq}%
+%\section{An Overview of Coq and Agda}\label{sec:coq}%
 
-Coq is a proof assistant based on the calculus of inductive
+In this section we provide a brief introduction to the proof assistants used in the development of this work.
+
+%\paragraph{Coq Proof Assistant}% Coq is a proof assistant based on the calculus of inductive
 constructions (CIC)%~\cite{Bertot04}%, a higher order typed
 $\lambda$-calculus extended with inductive definitions.  Theorem
 proving in Coq follows the ideas of the so-called
@@ -167,7 +170,7 @@ Section EXAMPLE.
 End EXAMPLE.
 
 (**
-In the previous source code piece, we have defined a Coq section named
+In the previous source code, we have defined a Coq section named
 [EXAMPLE]%\footnote{In Coq, we can use sections to delimit the
   scope of local variables.}% which declares variables [A],
 [B] and [C] as being propositions (i.e. with type
@@ -183,7 +186,7 @@ from [C] to [B] and [apply H] changes the goal to
 find a hypothesis that matches with the goal.
 
 We define next a proof of the previous propositional logical formula
-that, in contrast to the previous proof, that was built using tactics
+that, in contrast to the previous proof, which was built using tactics
 ([intros], [apply] and [assumption]), is coded
 directly as a function:
  *)
@@ -193,19 +196,58 @@ Definition example'
    fun (H : A -> B) (H' : B -> C) (HA : A) => H' (H HA).
 
 (**
-However, even for very simple theorems, coding a definition directly
+As we can note, even for very simple theorems, coding a definition directly
 as a Coq term can be a hard task. Because of this, the use of tactics
 has become the standard way of proving theorems in Coq. Furthermore,
 the Coq proof assistant provides not only a great number of tactics
-but also have a domain specific language for scripted proof automation,
+but also has a domain specific language for scripted proof automation,
 called %$\mathcal{L}$tac%. More information about Coq and  %$\mathcal{L}$tac% can be found
 in%~\cite{Chlipala13,Bertot04}%.
+
+%\paragraph{Agda Language}%
+Agda is a dependently-typed functional programming language based on
+Martin-L%\"o%f intuitionistic type theory%~\cite{Lof98}%.  Function types
+and an infinite hierarchy of types, %\lstinline|Set l|%, where %\lstinline|l|% is a
+natural number, are built-in. Everything else is a user-defined
+type. The type %\lstinline|Set|%, also known as %\lstinline|Set|$_0$%, is the type of all
+``small'' types, such as %\lstinline|Bool|%, %\lstinline|String|% and
+ %\lstinline|List Bool|%.  The type %\lstinline|Set|$_1$% is the type of %\lstinline|Set|%
+and ``others like it'', such as %\lstinline|Set -> Bool|%, %\lstinline|String -> Set|%,
+and %\lstinline|Set -> Set|%. We have that %\lstinline|Set l|% is an
+element of the type %\lstinline|Set (l+1)|%, for every %$l \geq 0$%. This
+stratification of types is used to keep Agda consistent as a logical
+theory%~\cite{Sorensen06}%.
+
+An ordinary (non-dependent) function type is written %\lstinline|A -> B|% and a
+dependent one is written %\lstinline|(x : A) -> B|%, where type %\lstinline|B|% depends on
+%\lstinline|x|%, or %$\forall$\lstinline|(x : A) -> B|%. Agda allows the definition of %\emph{implicit
+parameters}%, i.e.  parameters whose value can be infered from the
+context, by surrounding them in curly braces: %$\forall$\lstinline|{x : A} -> B|%. To
+avoid clutter, we'll omit implicit arguments from the source code
+presentation. The reader can safely assume that every free variable in
+a type is an implicity parameter.
+
+As an example of Agda code, let's consider the implementation of the function %\textbf{example}%
+previously given using Coq.
+
+%
+\begin{lstlisting}[language=haskell]
+example : (A -> B) -> (B -> C) -> A -> C
+example f g x = g (f x) 
+\end{lstlisting}
+%
+
+Theorem proving in Agda consists of writing functions in which the type corresponds to the
+theorem statement. Unlike Coq, Agda has no support for tactics. However, some limited proof
+automation can be achieved by its Emacs-mode or using language's reflection support%~\cite{Kokke15}%.
+More information about Agda can be found elsewhere%~\cite{plfa2019}%.
+
 
 
 %\section{Semantics-based proof}\label{sec:semantics}%
 
-Our first task in formalizing the consistency is how to represent formulas (type [form]), which
-are represented by the false constant ([Falsum] constructor) and implication ([Implies] constructor).
+Our first task for formalizing the consistency is to represent formulas (type [form]), which
+are expressed by the false constant ([Falsum] constructor) and implication ([Implies] constructor).
 Contexts are just a list of formulas.
 *)
 
@@ -217,17 +259,19 @@ Inductive form : Set :=
 Definition ctx := list form.
 
 (**
-In order to represent variables, We follow a traditional approach in programming languages community
-and use %\emph{De Bruijn indexes}~\cite{DeBruijn71}% represented as an inductive judgement between
-formulas and contexts:
+In order to represent variables, we follow a traditional approach in the programming languages community
+by using %\emph{De Bruijn indices}~\cite{DeBruijn71}%, a technique for handling binding by using a
+nameless, position-dependent naming scheme. In our natural deduction judgement we do not
+use a name to identify a variable, but a well-typed de Bruijn index (type [var]) which witnesses the existence
+of a formula [form] in a context [ctx]. This technique is well known for avoiding out-of-bound errors. Furthermore, by
+using well-typed representations, these kinds of errors become meta-program typing errors and are identified
+by the Coq's type checker. These ideas are represented by the following judgment and its Coq definition.
 %\[%
 %\begin{array}{cc}%
 %\infer[_{\{Here\}}]{\alpha \in (\alpha :: \Gamma)}{} &%
 %\infer[_{\{There\}}]{\alpha \in (\beta :: \Gamma)}{\alpha \in \Gamma}%
 %\end{array}%
 %\]%
-In essence, this judgment states the membership of a formula %$\alpha$% in a context %$\Gamma$%. 
-The Coq encoding of this predicate is straightforward.
  *)
 
 Inductive var : ctx -> form -> Type :=
@@ -263,18 +307,18 @@ which allows us to deduce a formula [p] from deductions of [Implies p' p] and [p
 
 The Curry-Howard isomorphism states that there is a correspondence between logics and functional programming by
 relating logical formulas to types and proofs to %$\lambda$%-calculus terms %\cite{Sorensen06}%. In order to prove
-consistency of natural deduction system, we use this analogy with %$\lambda$%-calculus. Basically, under the
-Curry-Howard interpretation, saying that there is no proof for %$\emptyset \vdash \bot$%
-(the statement of the consistency property) resorts to show that there is no value%\footnote{A value is a well-typed term
-which can not be further reduced according to a semantics.}% of type %$\bot$%. A way to ensure that a type
-has no value, is to reduce arbitrary terms until we no more reductions steps apply and that is the strategy of our
+consistency of a natural deduction system, we use this analogy with %$\lambda$%-calculus. Basically, it says that under the
+Curry-Howard interpretation, there is no proof for %$\emptyset \vdash \bot$%
+(the statement of the consistency property) showing that there is no value%\footnote{A value is a well-typed term
+which cannot be further reduced according to a semantics.}% of type %$\bot$%. A way to ensure that a type
+has no value, is to reduce arbitrary terms until we have no more reductions steps to apply and that is the strategy of our
 semantics-based proof: build an algorithm to reduce proof terms and use it to show that there are no proofs
 for %$\bot$%.
 
 The reduction algorithm we use is an well-typed interpreter for the simply-typed %$\lambda$%-calculus based on a
 standard model construction. The first step in the implementation is to define the denotation of a formula by
 recursion on its structure. The idea is to associate the empty type ([False]) with the formula [Falsum] and a
-function type with formula [Implies p1 p2], as presented next.
+function type with the formula [Implies p1 p2], as presented next.
  *)
 
 (* begin hide *)
@@ -291,7 +335,7 @@ Program Fixpoint sem_form (p : form) : Type :=
   end.
 
 (**
-Using [sem_form] function, we can define context semantics as tuples
+Using the [sem_form] function, we can define the context semantics as tuples
 of formula semantics as follows:
  *)
 
@@ -303,7 +347,7 @@ Program Fixpoint sem_ctx (G : ctx) : Type :=
 (**
 Function [sem_ctx] recurses over the structure of the input context building
 right-nested tuple ending with the Coq [unit] type, which is a type with a
-unique element. Since contexts are mapped intro tuples, variables must be
+unique element. Since contexts are mapped into tuples, variables must be
 mapped into projections on such tuples. This would allow us to retrieve the
 value associated with a variable in a context.
 *)
@@ -327,7 +371,7 @@ proofs is done by function [sem_nat_ded], which maps proofs (values of type [nat
 and context semantics (values of type [sem_ctx G]) to the value of input proof conclusion
 (type [sem_form p]). The first case specifies that the semantics of an identity rule proof
 (constructor [Id]) is just retrieving the value of the underlying variable in the context semantics
-by calling function [sem_var]. The second case deals with [ExFalsum] rule: we recurse over the proof
+by calling function [sem_var]. The second case deals with the [ExFalsum] rule: we recurse over the proof
 object [Hf] which will produce a Coq object of type [False], which is empty and so we can finish the
 definition with an empty pattern match. Semantics of implication introduction ([Implies_I]) simply
 recurses on the subderivation [Hp] using an extended context [(v' , env)]. Finally, we define the
@@ -352,8 +396,7 @@ deduction system merely by showing that it should not be the case that we have a
 using the empty set of assumptions. We can prove such fact by exhibiting a term of type
 [nat_ded [] Falsum -> False]%\footnote{Here we use the fact that $\neg \alpha$ is
 equivalent to $\alpha \supset \bot$.}%, which is trivially done by using function [sem_nat_ded] with term
-[tt], which is the value of type [unit] that denotes the semantics of the empty context needed to call
-[sem_nat_ded].
+[tt], which is the value of type [unit] that denotes the semantics of the empty context.
  *)
 
 Theorem consistency : nat_ded [] Falsum -> False
@@ -362,9 +405,9 @@ Theorem consistency : nat_ded [] Falsum -> False
 (**
 %\section{Gentzen style proof}\label{sec:admissibility}%
 
-Now, we turn our attention to formalizing the admissibility of cut based consistency proof in Coq.
+Now, we turn our attention to formalizing the consistency proof based on the admissibility of cut in Coq.
 Unlike our semantics-based proof, which uses dependently typed syntax to concisely represent formulas and
-natural deduction proofs, we use an explicity approach in representing formulas as sequent calculus proofs.
+natural deduction proofs, we use an explicity approach for representing formulas as sequent calculus proofs.
 We use natural numbers to represent variables and formulas are encoded as simple inductive type which has
 an immediate meaning.
  *)
@@ -377,20 +420,19 @@ Inductive form : Type :=
 | Implies : form -> form -> form.
 
 (**
+Next, we present the sequent calculus formulation for our minimal logic.
 The main change on how we represent the sequent calculus is in the
-rule for variables. We use the Coq library boolean list membership predicate
-[member], which fits better for proof automation. In order to
+rule for variables. We use the boolean list membership predicate
+[member], from Coq's standard library, which fits better for proof automation. In order to
 simplify the task of writing code that uses this predicate, we defined
 notation [a el G] which means [member a G]. 
 
-Next, we the sequent calculus formulation for our minimal logic. The only
-difference with the natural deduction is in one rule for implication. The
+The only difference with the natural deduction is in one rule for implication. The
 sequent calculus rule counter-part for implication elimination is called
 implication left rule, which states that we can conclude any formula $\gamma$
 in a context $\Gamma$ if we have that: 1) $\alpha \supset \beta \in \Gamma$;
 2) $\Gamma \Rightarrow \alpha$ and 3) $\Gamma \cup \{\beta\} \Rightarrow
-\gamma$. The rules for the sequent-calculus and its correspondent Coq
-implementation are presented next.
+\gamma$. The Coq sequent calculus implementation is presented next.
  *)
 
 Inductive seq_calc : ctx -> form -> Prop :=
@@ -408,7 +450,7 @@ Inductive seq_calc : ctx -> form -> Prop :=
     seq_calc G c.
 
 (**
-An important property of sequent calculus derivations is the weakening which
+An important property of sequent calculus derivations is the weakening, which
 states that it stable under the inclusion of new hypothesis.
 %
 \begin{Lemma}[Weakening]\label{lemma:weak}
@@ -418,31 +460,32 @@ If %$\Gamma \subseteq \Gamma'$% and %$\Gamma\Rightarrow \alpha$% then %$\Gamma'\
   Induction on the derivation of $\Gamma\Rightarrow\alpha$.
 \end{proof}
 %
-Since weakening has a straightforward inductive proof (coded as 4 lines tactic script),
+Since weakening has a straightforward inductive proof (coded as a 4 lines tactic script),
 we do not comment on its details. However, this proof is used in several points in the admissibility
-of cut property, which we generalize using the following lemma in order to get a stronger induction hypothesis.
+of cut property, which we generalize using the following lemma in order to get a stronger
+induction hypothesis.
 
 %
 \begin{Lemma}[Generalized admissibility]\label{lemma:admissibility}
    If $\Gamma\Rightarrow\alpha$ and $\Gamma'\Rightarrow \beta$ then $\Gamma \cup (\Gamma' - \{\alpha\}) \Rightarrow \beta$.
 \end{Lemma}
 \begin{proof}
-   The proof proceeds by induction on the structure of the cut formula $\alpha$. The cases for $\alpha = \bot$ and
-   $\alpha$ is a variable easily follows by induction on  $\Gamma\Rightarrow\alpha$ and using weakening on the variable case.
+   The proof proceeds by induction on the structure of the cut formula $\alpha$. The cases for when $\alpha = \bot$ and
+   when $\alpha$ is a variable easily follows by induction on  $\Gamma\Rightarrow\alpha$ and using weakening on the variable case.
    The interesting case is when $\alpha = \alpha_1 \supset \alpha_2$ in which we proceed by induction on $\Gamma\Rightarrow\alpha$.
-   Again, most of cases are straightforward except when the last rule used to conclude $\alpha_1\supset\alpha_2$ was $\supset-R$.
-   In this situation, we proceed by induction on $\Gamma'\Rightarrow \beta$. The only interesting cases are when the last rule was
-   $\supset-L$ or $\supset-R$. If the last rule used in deriving $\Gamma' \Rightarrow \beta$ was
-   $\supset-R$ we have: $\beta = a \supset b$, for some $a,b$.
+   Again, most of cases are straightforward except when the last rule used to conclude $\alpha_1\supset\alpha_2$ was $\supset$-\textit{R}.
+   In this situation, we proceed by induction on $\Gamma'\Rightarrow \beta$, where the only interesting cases are when the last rule was
+   $\supset$-\textit{L} or $\supset$-\textit{R}. If the last rule used in deriving $\Gamma' \Rightarrow \beta$ was
+   $\supset$-\textit{R} we have: $\beta = a \supset b$, for some $a,b$.
    Also, we have that $\Gamma' \cup \{a\}\Rightarrow b$. By the
    induction hypothesis on $\Gamma' \cup \{a\}\Rightarrow b$, we
    have that $\Gamma \cup ((\Gamma' \cup \{a\}) - \{\alpha_1 \supset \alpha_2\})\Rightarrow b$. Since we have 
    $\Gamma \cup ((\Gamma' \cup \{a\}) - \{\alpha_1 \supset \alpha_2\})\Rightarrow b$ then we also have
-   $\Gamma \cup (\Gamma' \cup \{a\} - \{\alpha_1 \supset \alpha_2\}) \cup \{a\} \Rightarrow b$ and conclusion follows by rule
-   $\supset-R$. The case for $\supset-L$ follows the same structure.
+   $\Gamma \cup (\Gamma' \cup \{a\} - \{\alpha_1 \supset \alpha_2\}) \cup \{a\} \Rightarrow b$ and the conclusion follows by rule
+   $\supset$-\textit{R}. The case for $\supset$-\textit{L} follows the same structure.
 \end{proof}
 %
-Using the previous defined lemma, the admissibility of cut is an immediate corollary.
+Using the previously defined lemma, the admissibility of cut is an immediate corollary.
 
 %
 \begin{Corollary}[Admissibility of cut]
@@ -466,11 +509,11 @@ derivations.
 %
 
 The next step in the mechanization of the
-consistency of our minimal logic is to stabilish the equivalence between sequent
-calculus and natural deduction systems. The equivalence proofs between these two
-formalism are based on a routine induction on derivations using admissibility of
+consistency of our minimal logic is to stabilish the equivalence between the sequent
+calculus and the natural deduction systems. The equivalence proofs between these two
+formalisms are based on a routine induction on derivations using admissibility of
 cut. We omit its description for brevity. The complete proofs of these
-equivalence results can be found in our code repository%~\cite{Sasdelli20}%. 
+equivalence results can be found in our source code repository%~\cite{Sasdelli20}%. 
 Finally, we can prove the consistency of natural deduction by combining the
 proofs of consistency of the sequent calculus and the equivalence between these
 formalisms.
@@ -496,7 +539,7 @@ on the admissibility of cut version.
 One important design decision of our Agda proof was how to represent contexts. While
 our Coq proof consider contexts as sets, i.e., operations and relations over contexts
 are implemented in order to not take in account the element order and their multiplicity,
-the Agda version implements contexts as multi-sets of formulas. We follow this approach
+the Agda version implements contexts as sequences of formulas. We follow this approach
 mainly because it fits better as an inductive predicate for expressing permutations.
 Dealing with sets in Coq was easy mainly because of the facilities offered by small-scale reflection
 and type classes which ease evidence construction%~\cite{GonthierM10,GonthierZND11}%. The inductive
@@ -514,7 +557,7 @@ The first rule simply states that an empty list can only be a permutation of its
 shows that if %\lstinline|G ~ G'|% then including an element in both lists allows for building a bigger
 permutation, rule %\lstinline|Swap|% allows the exchange of two adjacent list elements and %\lstinline|Trans|%
 guarantee that permutation is a transitive relation. Using the permutation relation, we encode an
-inductive type to represent sequent calculus rules.
+inductive type to represent the sequent calculus rules.
 %
 \begin{lstlisting}[language=haskell]
 data _=>_ : Context -> Form -> Set where
@@ -525,12 +568,31 @@ data _=>_ : Context -> Form -> Set where
 %
 In our Agda encoding of the sequent calculus we explicitly use a constructor for using the exchange rule
 which specifies that permutations of contexts do not change provability. Instead of using a list provability
-predicate, our sequent calculus presentation demands that the formula proved by initial sequent
+predicate, our sequent calculus presentation demands that the formula proved by the initial sequent
 (constructor %\lstinline|init|%) is the first element of the context.
 
 In order to prove admissibility of cut using this sequent calculus encoding, we proved some lemmas, namely weakening
-and contraction%\footnote{The contraction rule allows the removal of duplicated hypothesis in context.}%, which are
-proved by a simple induction on the input derivation. Using the proofs of weakening and contraction, we can implement
+and contraction%\footnote{The contraction rule allows the removal of duplicated hypothesis in context.}%. Weakening is
+proved by a simple induction on the input derivation and is omitted for brevity. However, in the proof of contraction,
+ we need to use fuel to satisfy Agda's totality check that could not identify the function as terminating.
+%
+\begin{lstlisting}[language=haskell]
+=>-contraction : Fuel -> A :: A :: G => C
+  -> Maybe (A :: G => C)
+=>-contraction zero _ = nothing
+=>-contraction (suc n) init = just init
+=>-contraction (suc n) (AndR D D1)
+    with (=>-contraction n D)
+       | (=>-contraction n D1)
+... | nothing | nothing = nothing
+... | nothing | just x = nothing
+... | just x | nothing = nothing
+... | just x | just x1 = just (AndR x x1)
+-- some code omitted for brevity
+\end{lstlisting}
+%
+Essentially, the fuel parameter is just a natural number that bounds the number of recursive calls in a function definition.
+Using the proofs of weakening and contraction, we can implement
 the admissibility of cut theorem by the following Agda function.
 
 %
@@ -552,47 +614,47 @@ the admissibility of cut theorem by the following Agda function.
 %
 
 Instead of using nested induction (or induction on a well-founded relation%~\cite{Bertot04}%), we implement the
-admissibility of cut using fuel based recursion. While is certainly possible to use nested inductions
+admissibility of cut using fuel based recursion. While it is certainly possible to use nested inductions
 (like in our proof in Coq) in Agda, it would unnecessarily clutter the presentation of our results. It is worth to
 mention that the use of fuel in the admissibility was only necessary to please Agda's termination checker. Similar
-approachs were used in the context of programming languages meta-theory%~\cite{Amin17}%.
+approaches were used in the context of programming languages meta-theory%~\cite{Amin17}%.
 
 %\section{Lessons learned}\label{sec:lessons}%
 
-Previous sections presented two different formalizations for consistency of minimal
+The previous sections presented two different formalizations for the consistency of a minimal
 propositional logic in Coq and Agda proof assistants. In this section, we briefly resume the
 main characteristics of each approach and try to draw some conclusions on the
 realized proof effort.
 
-The first proof strategy used was inspired by the Curry-Howard correspondence and it is,
+The first proof strategy we use was inspired by the Curry-Howard correspondence and it is,
 in essence, a well-typed interpreter for the
-simply-typed %$\lambda$%-calculus. The consistency is ensured by construct a term
-that asserts that is impossible to build a term of type [Falsum] from an empty
+simply-typed %$\lambda$%-calculus. The consistency is ensured by constructing a term
+which asserts that it is impossible to build a term of type [Falsum] from an empty
 context, which is done by a simple call to the %$\lambda$%-calculus interpreter.
 In Coq, the complete formalization is 85 lines long and we only use the [Program] construct
-which eases the task of dependently-typed pattern matching, which is necessary
-to construct functions which manipulate richly typed structures like type [var] or
+to ease the task of dependently-typed pattern matching, which is necessary
+to construct functions to manipulate richly typed structures like the type [var] or to
 build types from values like [sem_form] and [sem_ctx]. No standard tactic or
-tatic library is used to finish the formalization. The Agda version of this proof
+tactic library is used to finish the formalization. The Agda version of this proof
 follows essentially the same idea and has around 50 lines of code.
 
 The second strategy implements the usual proof theoretical approach to guarantee
-the consistency of logics. As briefly described in the previously, proving
+the consistency of logics. As briefly described previously, proving
 the admissibility of cut needs nested inductions on the structure of the cut-formula
 and on the structure of the sequent-calculus derivations. The main problem on proving
-the cut lemma is the bureocratic adjustement of contexts by using weakening in the
+the cut lemma is the bureaucratic adjustement of contexts by using weakening in the
 right places in the proof. Our proof uses some tactics libraries%~\cite{Chlipala13, Pierce18}%
-and type class based automation to automatically produce proof terms for subset relation
+and type class based automation to automatically produce proof terms for the subset relation
 between contexts. Our cut-based consistency proof has around 270 lines of code without
 considering the tactics libraries used. The Agda version of Gentzen style consistency demanded
 much more effort due to the lack of proof automation which resulted in more than 700 lines to conclude
 the proof.
 
-When comparing the both approachs (Gentzen style vs semantic-based style), it is obvious that the
-first demands approximately 3 times more lines of code than the first in Coq and more than 10
+When comparing both approaches (Gentzen style vs semantic-based style), it is obvious that the
+first demands approximately 3 times more lines of code than the second in Coq and more than 10
 times in Agda (around 700 LOC).
-However, while demanding more code, the cut-based proof essentially follows the ideas used in
-proof-theory textbooks. One of main difficulties in formalizing the Gentzen style proof was the correct handling of
+However, while demanding more code, the cut-based proof essentially follows the ideas presented in
+proof-theory textbooks. One of the main difficulties when formalizing the Gentzen style proof was the correct handling of
 weakening. The usage of proof automation tools and Coq type classes had a great impact
 on the simplification of these results.
 The semantics-based proof rely on the relation between the minimal propositional logic and
@@ -601,33 +663,33 @@ of the Curry-Howard isomorphism.
 
 %\section{Related work}\label{sec:related}%
 
-%\paragraph{Formalizations of logics}%Proof assistants has been used with sucess to formalize
+%\paragraph{Formalizations of logics}%Proof assistants have been used with sucess to formalize
 several logical theories. van Doorn describes a formalization of some important results about
 propositional logic in Coq: completeness of natural deduction, equivalence between natural
 deduction and sequent calculus and the admissibility of cut theorem%~\cite{doorn2015}%. In his formalization,
 van Doorn considered the full syntax of propositional logic (including negation, disjuntion and conjunction) and
-also have proved completeness of natural deduction. In our work, we tried to keep things to a bare minimum by
+also proved the completeness of natural deduction. In our work, we tried to keep things to a bare minimum by
 considering a minimalistic version of propositional logic. We intend to include the missing conectives as
 future work. Another formalization of propositional logic was implemented by Michaelis and Nipkow%~\cite{Nipkow17}% which
-covered several proof systems (sequent calculus, natural deduction, Hilbert systems, resolution) and proved the some
+covered several proof systems (sequent calculus, natural deduction, Hilbert systems, resolution) and proved some
 important meta-theoretic results like: compactness, translations between proof systems, cut-elimination and model existence.
 
 A formalization of linear logic was conducted by Allais and McBride%~\cite{allais18}%. In essence, Allais and McBride work
 starts from a well-scoped %$\lambda$%-calculus and introduce a typed representation which leads to a intuitionistic version
 of linear logic which uses a relation that ensure the resource control behavior of linear logic proofs. Another work which
-formalizes linear logic was developed by Xavier et. al%~\cite{xavier18}%. The main novelty of their work was the formalization
+formalizes linear logic was developed by Xavier et. al.%~\cite{xavier18}%. The main novelty of their work was the formalization
 of a focused linear logic using a binding representation called parametric high-order abstract syntax (PHOAS)%~\cite{Chlipala08}%.
 
 %\paragraph{Applications of proof assistants.}%
 
-Recently, the interest on such interpreters was revitalized by%~\citet{Amin17}%, which used definitional
+Recently, the interest on certified interpreters was revitalized by%~\citet{Amin17}%, which used definitional
 interpreters, implemented in Coq, to prove type soundness theorems for non-trivial typed languages like System F%$_{<:}$%.
 Amin and Rompf's formalization uses fuel-based interpreters to represent semantics and they argue that presence of
 the artificial fuel argument does not invalidate semantics results and allow for a better distinction between timeouts,
 errors and normal values thus leading to stronger results.
 
-Proof assistants has been used with some success to classical results of parsing and automata theory.
-A formal constructive theory of RLs (regular language) was presented by Doczkal et. al. in
+Proof assistants have been used with some success to classical results of parsing and automata theory.
+A formal constructive theory of RLs (regular language) was presented by Doczkal et. al.
 %\cite{Doczkal13}%. They formalized some fundamental results about RLs.
 For their formalization, they used the Ssreflect extension to Coq, which
 features an extensive library with support for reasoning about finite
@@ -636,7 +698,7 @@ of their results in about 1400 lines of Coq, half of which are specifications.
 Most of their formalization deals with translations between different
 representations of RLs, including REs, DFAs (deterministic finite automata),
 minimal DFAs and NFAs (non-deterministic finite automata).
-They formalized all these (and other) representations and constructed
+They formalized all these (and others) representations and constructed
 computable conversions between them. Besides other interesting aspects
 of their work, they proved the decidability of language equivalence
 for all representations. Ribeiro and Du Bois%~\cite{Ribeiro17}% described the formalization of a RE
@@ -644,9 +706,9 @@ for all representations. Ribeiro and Du Bois%~\cite{Ribeiro17}% described the fo
 of its parse tree in the dependently typed language Agda. The algorithm computes bit-codes using Brzozowski derivatives and
 they proved that the produced codes are equivalent to parse trees ensuring soundness and completeness with respect to an
 inductive RE semantics. They included the certified algorithm in a tool developed by themselves, named verigrep, for RE-based
-search in the style of GNU grep. While the authors provided formal proofs, their tool show a bad performance when compared to
-other approaches to RE parsing. Ridge%~\cite{Ridge2011}% describes a formalization, in the HOL4 theorem
-prover, of a combinator parsing library. A parser generator for such
+search in the style of GNU grep. While the authors provided formal proofs, their tool show a less effective performance when compared to
+other approaches to RE parsing. Ridge%~\cite{Ridge2011}% describes a formalization of a combinator parsing library  in the HOL4 theorem
+prover. A parser generator for such
 combinators is described and a proof that generated parsers are sound
 and complete is presented.  According to Ridge, preliminary results
 shows that parsers built using his generator are faster than those
@@ -662,11 +724,11 @@ reported in the literature (c.f.%~\cite{DuboisM99,NaraschewskiN-JAR,Nazareth-Nip
 The first works on formalizing type inference are by Nazareth and
 Narascewski in Isabelle/HOL%~\cite{NaraschewskiN-JAR,Nazareth-Nipkow}%.
 Both works focus on formalizing the well-known algorithm
-W~\cite{Milner78}, but unlike our work, they don't provide a verified
+W%~\cite{Milner1978}%, but unlike our work, they don't provide a verified
 implementation of unification. They assume all the necessary
 unification properties to finish their certification of type
 inference. The work of Dubois%~\cite{DuboisM99}% also postulates
-unification and prove properties of type inference for ML using the
+unification and proves properties of type inference for ML using the
 Coq proof assistant system.  Nominal techniques were used by
 Urban%~\cite{UrbanN2009}% to certify algorithm W in Isabelle/HOL using
 the Nominal package. As in other works, Urban just assumes properties
@@ -685,20 +747,17 @@ calls made.  Also, he uses libraries for dealing with bindings using
 the so-called locally nameless approach%~\cite{Chargueraud12}%.
 
 
-
-
-
 %\section{Conclusion}\label{sec:conclusion}%
 
 In this work we briefly describe a Coq formalization of a semantics based consistency proof for
-minimal propositional logic. The complete proof is only 85 lines long and only use of some basic
+a minimal propositional logic. The complete proof is only 85 lines long and only uses some basic
 dependently typed programming features of Coq. We also
 formalize the consistency of this simple logic in Coq using Gentzen's admissibility of cut approach
-which resulted in longer formalization: the formalization has around 270 lines of code, which were much
+which resulted in a longer formalization: the formalization has around 270 lines of code, which were much
 simplified by using some tactics libraries. We also report on our efforts to reproduce the same proof
-on Agda programming language which, due to the lack of proof automation, demanded more lines of code
+using the Agda programming language which, due to the lack of proof automation, demanded more lines of code
 to express similar results.
 
-As future work, we intend to extend the current formalization to full propositional logic and also
-other formalisms like Hilbert systems and resolution.
+As future work, we intend to extend the current formalization for the full propositional logic and also
+other formalisms like Hilbert systems, resolution and focused versions of sequent calculus.
  *)

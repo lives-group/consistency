@@ -1,4 +1,4 @@
-\documentclass[manuscript, review,sigconf]{acmart}
+\documentclass[manuscript, review, anonymous, sigconf]{acmart}
 
 \citestyle{acmnumeric}
 \usepackage{booktabs} % For formal tables
@@ -83,6 +83,17 @@
   %\country{Brazil}
 }
 
+\author{Elton Cardoso}
+\email{eltonmc@ufop.edu.br}
+\affiliation{%
+  \department{Programa de P\'os-Gradua\c{c}\~ao em Ci\^encia da Computa\c{c}\~ao}
+  \institution{Universidade Federal de Ouro Preto}
+  %\city{Ouro Preto}
+  %\state{Minas Gerais}
+  %\country{Brazil}
+}
+
+
 \author{Samuel Feitosa}
 \email{samuel.feitosa@ifsc.edu.br}
 \affiliation{%
@@ -112,10 +123,12 @@
   of cut. A more semantics-based approach to consistency proofs is to explore the
   correspondence between a logics and its relation with the
   evaluation in a $\lambda$-calculus, known as Curry-Howard isomorphism.
-  In this work, we describe and present a comparison between two Coq
-  formalizations of consistency of minimal propositional logic: one using a
+  In this work, we describe and present a comparison between two 
+  formalizations of consistency for minimal propositional logic: one using a
   semantic-based approach and another following the traditional syntatic proof
-  theoretical approach.
+  theoretical approach in both Coq proof assistant and Agda programming
+  language. We conclude by discussing the lessons learned during
+  the cerfication of these results in both languages.
 \end{abstract}
 
 \begin{CCSXML}
@@ -125,11 +138,16 @@
 <concept_desc>Theory of computation~Proof theory</concept_desc>
 <concept_significance>500</concept_significance>
 </concept>
+<concept>
+<concept_id>10003752.10003790.10011740</concept_id>
+<concept_desc>Theory of computation~Type theory</concept_desc>
+<concept_significance>300</concept_significance>
+</concept>
 </ccs2012>
 \end{CCSXML}
 
 \ccsdesc[500]{Theory of computation~Proof theory}
-
+\ccsdesc[300]{Theory of computation~Type theory}
 \keywords{Consistency, Curry-Howard Isomorphism, Coq proof assistant}
 
 \maketitle

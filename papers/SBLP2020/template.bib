@@ -38,12 +38,40 @@ year={2001}}
 }
 
 @misc{Sasdelli20,
-  author = {Felipe Sasdelli and Maycon Amaro and Rodrigo Ribeiro},
-  title = {A Semantical Proof of Consistency for Minimal Propositional Logic in Coq},
+  author = {Anonymous Authors},
+  title = {Proofs of Consistency for Propositional Logic Verified in Coq and Agda},
   year = {2020},
   publisher = {GitHub},
-  note = {Avaliable at \url{https://github.com/rodrigogribeiro/consistency-coq}}
+  note = {Avaliable at \url{https://github.com/anonymous-reps/consistency-proofs}}
 }
+@incollection {Lof98,
+    AUTHOR = {Martin-L{\"o}f, Per},
+     TITLE = {An intuitionistic theory of types},
+ BOOKTITLE = {Twenty-five years of constructive type theory ({V}enice,
+              1995)},
+    SERIES = {Oxford Logic Guides},
+    VOLUME = {36},
+     PAGES = {127--172},
+ PUBLISHER = {Oxford Univ. Press, New York},
+      YEAR = {1998},
+   MRCLASS = {03B15 (03F55)},
+  MRNUMBER = {1686864},
+}
+@InProceedings{Kokke15,
+author="Kokke, Pepijn
+and Swierstra, Wouter",
+editor="Hinze, Ralf
+and Voigtl{\"a}nder, Janis",
+title="Auto in Agda",
+booktitle="Mathematics of Program Construction",
+year="2015",
+publisher="Springer International Publishing",
+address="Cham",
+pages="276--301",
+abstract="As proofs in type theory become increasingly complex, there is a growing need to provide better proof automation. This paper shows how to implement a Prolog-style resolution procedure in the dependently typed programming language Agda. Connecting this resolution procedure to Agda's reflection mechanism provides a first-class proof search tactic for first-order Agda terms. As a result, writing proof automation tactics need not be different from writing any other program.",
+isbn="978-3-319-19797-5"
+}
+
 
 @book{smullyan1995first,
   title={First-order Logic},
@@ -284,12 +312,12 @@ isbn="978-3-319-03545-1"
 }
 @article{Firsov2014,
 title = "Certified \{CYK\} parsing of context-free languages ",
-journal = "Journal of Logical and Algebraic Methods in Programming ",
+journal = "Journal of Logical and Algebraic Methods in Programming",
 volume = "83",
-number = "5–6",
+number = "5 - 6",
 pages = "459 - 468",
 year = "2014",
-note = "The 24th Nordic Workshop on Programming Theory (NWPT 2012) ",
+note = "The 24th Nordic Workshop on Programming Theory (NWPT 2012)",
 issn = "2352-2208",
 doi = "http://dx.doi.org/10.1016/j.jlamp.2014.09.002",
 url = "http://www.sciencedirect.com/science/article/pii/S2352220814000601",
@@ -396,7 +424,9 @@ keywords = "Agda "
 author={Wolfgang Naraschewski and Tobias Nipkow},
 title={Type Inference Verified: Algorithm {W} in {Isabelle/HOL}},
 journal={Journal of Automated Reasoning},
-year=1999,volume=23,pages={299--318}}
+year=1999,
+volume=23,
+pages={299--318}}
 @inproceedings{Nazareth-Nipkow,
 author={Dieter Nazareth and Tobias Nipkow},
 title={{Formal Verification of Algorithm {W}: The Monomorphic Case}},
@@ -410,7 +440,9 @@ author={Christian Urban and Tobias Nipkow},
 title={{Nominal verification of algorithm {W}}},
 booktitle={From Semantics to Computer Science. Essays in Honour of Gilles Kahn},
 editor={G. Huet and J.-J. Lévy and G. Plotkin},
-publisher={Cambridge University Press},pages={363--382},year=2009}
+publisher={Cambridge University Press},
+pages={363--382},
+year=2009}
 @article{DuboisM99,
   author    = {Catherine Dubois and
                Val{\'{e}}rie M{\'{e}}nissier{-}Morain},
@@ -427,4 +459,16 @@ publisher={Cambridge University Press},pages={363--382},year=2009}
   biburl    = {http://dblp2.uni-trier.de/rec/bib/journals/jar/DuboisM99},
   bibsource = {dblp computer science bibliography, http://dblp.org}
 }
-
+@article{Milner1978,
+title = "A theory of type polymorphism in programming",
+journal = "Journal of Computer and System Sciences",
+volume = "17",
+number = "3",
+pages = "348 - 375",
+year = "1978",
+issn = "0022-0000",
+doi = "https://doi.org/10.1016/0022-0000(78)90014-4",
+url = "http://www.sciencedirect.com/science/article/pii/0022000078900144",
+author = "Robin Milner",
+abstract = "The aim of this work is largely a practical one. A widely employed style of programming, particularly in structure-processing languages which impose no discipline of types, entails defining procedures which work well on objects of a wide variety. We present a formal type discipline for such polymorphic procedures in the context of a simple programming language, and a compile time type-checking algorithm W which enforces the discipline. A Semantic Soundness Theorem (based on a formal semantics for the language) states that well-type programs cannot “go wrong” and a Syntactic Soundness Theorem states that if W accepts a program then it is well typed. We also discuss extending these results to richer languages; a type-checking algorithm based on W is in fact already implemented and working, for the metalanguage ML in the Edinburgh LCF system."
+}
