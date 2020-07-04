@@ -223,23 +223,25 @@ in~\cite{Chlipala13,Bertot04}.
 \paragraph{Agda Language}
 Agda is a dependently-typed functional programming language based on
 Martin-L\"of intuitionistic type theory~\cite{Lof98}.  Function types
-and an infinite hierarchy of types, \lstinline|Set l|, where \lstinline|l| is a
+and an infinite hierarchy of types, \lstinline[language=haskell]|Set l|, where \lstinline|l| is a
 natural number, are built-in. Everything else is a user-defined
-type. The type \lstinline|Set|, also known as \lstinline|Set|$_0$, is the type of all
-``small'' types, such as \lstinline|Bool|, \lstinline|String| and
- \lstinline|List Bool|.  The type \lstinline|Set|$_1$ is the type of \lstinline|Set|
-and ``others like it'', such as \lstinline|Set -> Bool|, \lstinline|String -> Set|,
-and \lstinline|Set -> Set|. We have that \lstinline|Set l| is an
-element of the type \lstinline|Set (l+1)|, for every $l \geq 0$. This
+type. The type \lstinline|Set|, also known as \lstinline[language=haskell]|Set|$_0$, is the type of all
+``small'' types, such as \lstinline[language=haskell]|Bool|, \lstinline[language=haskell]|String| and
+ \lstinline[language=haskell]|List Bool|.  The type \lstinline[language=haskell]|Set|$_1$ is the type
+of \lstinline[language=haskell]|Set|
+and ``others like it'', such as \lstinline[language=haskell]|Set -> Bool|,
+\lstinline[language=haskell]|String -> Set|, and \lstinline[language=haskell]|Set -> Set|.
+We have that \lstinline[language=haskell]|Set l| is an
+element of the type \lstinline[language=haskell]|Set (l+1)|, for every $l \geq 0$. This
 stratification of types is used to keep Agda consistent as a logical
 theory~\cite{Sorensen06}.
 
 
 An ordinary (non-dependent) function type is written \lstinline|A -> B| and a
-dependent one is written \lstinline|(x : A) -> B|, where type \lstinline|B| depends on
-\lstinline|x|, or $\forall$\lstinline|(x : A) -> B|. Agda allows the definition of \emph{implicit
+dependent one is written \lstinline[language=haskell]|(x : A) -> B|, where type \lstinline[language=haskell]|B| depends on
+\lstinline[language=haskell]|x|, or $\forall$\lstinline[language=haskell]|(x : A) -> B|. Agda allows the definition of \emph{implicit
 parameters}, i.e.  parameters whose value can be infered from the
-context, by surrounding them in curly braces: $\forall$\lstinline|{x : A} -> B|. To
+context, by surrounding them in curly braces: $\forall$\lstinline[language=haskell]|{x : A} -> B|. To
 avoid clutter, we'll omit implicit arguments from the source code
 presentation. The reader can safely assume that every free variable in
 a type is an implicity parameter.
@@ -383,6 +385,7 @@ right-nested tuple ending with the Coq \coqdocvar{unit} type, which is a type wi
 unique element. Since contexts are mapped into tuples, variables must be
 mapped into projections on such tuples. This would allow us to retrieve the
 value associated with a variable in a context.
+\pagebreak
 \begin{coqdoccode}
 \coqdocemptyline
 \coqdocnoindent
@@ -664,10 +667,8 @@ proved by a simple induction on the input derivation and is omitted for brevity.
 =>-contraction (suc n) (AndR D D1)
     with (=>-contraction n D)
        | (=>-contraction n D1)
-... | nothing | nothing = nothing
-... | nothing | just x = nothing
-... | just x | nothing = nothing
 ... | just x | just x1 = just (AndR x x1)
+... | _      | _       = nothing
 -- some code omitted for brevity
 \end{lstlisting}
 
@@ -678,17 +679,13 @@ the admissibility of cut theorem by the following Agda function.
 
 
 \begin{lstlisting}[language=haskell]
-=>-cut : Fuel       ->
-        G => A      ->
-        A :: G => C -> Maybe (G => C)
+=>-cut : Fuel -> G => A -> A :: G => C
+      -> Maybe (G => C)
 =>-cut zero _ _ = nothing
 =>-cut (suc n) init E
    = =>-contraction n E
-=>-cut (suc n) D init
-   = just D
 =>-cut (suc n) (AndR D D1) (AndL E)
     with (=>-cut n (=>-weakening D) E)
-...    | nothing = nothing
 ...    | just x  = =>-cut n (AndR D D1) x
 -- some code omitted for brevity
 \end{lstlisting}
