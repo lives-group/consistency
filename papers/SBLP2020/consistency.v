@@ -18,7 +18,7 @@ Import ListNotations.
 %\section{Introduction}%
 
 A crucial property of a logical system is consistency, which states that it does not
-entails a contradiction. Basically, consistency implies that not all formulas
+entail a contradiction. Basically, consistency implies that not all formulas
 are provable.  While having a simple motivation, consistency proofs rely on
 the well-known admissibility of cut property, which has a rather delicate inductive proof.
 Gentzen, in his seminal work%~\cite{Gentzen36}%, gives the first consistency proof of logic by introducing an
@@ -36,11 +36,11 @@ ensure a decreasing measure on each use of the inductive hypothesis. Such proofs
 a heavy syntactic flavor since they recursively manipulate proof tree structures to
 eliminate cuts. A more semantics-based approach relies on interpreting logics as its
 underlying %$\lambda$%-calculus and proves consistency by using its computation machinery.
-In this work, we report on formalizing these two approachs for a minimal version of
+In this work, we report on formalizing these two approaches for a minimal version of
 propositional logics.
 
 This work results from a research project motivated by questions raised by
-undergraduate students on a first course on formal logics at %\textbf{OMITTED DUE TO BLIND REVIEW}%.
+undergraduate students on a first course on formal logics at Universidade Federal de Ouro Preto, Brazil.
 The students were encouraged to "find the answer" by formalizing them in proof assistant systems.
 After some months following basic exercises on Agda and Coq on-line text books%~\cite{plfa2019,Pierce18}%,
 they were able to start the formalization of consistency for propositional logics. This paper reports on
@@ -48,7 +48,7 @@ the Coq formalization of two different approaches for consistency proofs of a mi
 propositional logics and briefly discuss an alternative Agda formalization of the same results, also considering
 the conjunction and disjunction connectives. We are aware that there are more extensive formalizations of propositional logic 
  in Coq%~\cite{doorn2015}% and other proof assistants%~\cite{Nipkow17}%. However, our focus is
-on showing how a better understanding of the Curry-Howard correspondence can lead to simple formalizations
+on showing how the understanding of the Curry-Howard correspondence can lead to simple formalizations
 of mathematical results through its computational representation.
 
 
@@ -352,7 +352,6 @@ right-nested tuple ending with the Coq [unit] type, which is a type with a
 unique element. Since contexts are mapped into tuples, variables must be
 mapped into projections on such tuples. This would allow us to retrieve the
 value associated with a variable in a context.
-%\pagebreak%
 *)
 
 Program Fixpoint sem_var {G p}(v : var G p)
@@ -454,7 +453,7 @@ Inductive seq_calc : ctx -> form -> Prop :=
 
 (**
 An important property of sequent calculus derivations is the weakening, which
-states that it stable under the inclusion of new hypothesis.
+states that it is stable under the inclusion of new hypothesis.
 %
 \begin{Lemma}[Weakening]\label{lemma:weak}
 If %$\Gamma \subseteq \Gamma'$% and %$\Gamma\Rightarrow \alpha$% then %$\Gamma'\Rightarrow \alpha$%.
@@ -672,7 +671,7 @@ covered several proof systems (sequent calculus, natural deduction, Hilbert syst
 important meta-theoretic results like: compactness, translations between proof systems, cut-elimination and model existence.
 
 A formalization of linear logic was conducted by Allais and McBride%~\cite{allais18}%. In essence, Allais and McBride work
-starts from a well-scoped %$\lambda$%-calculus and introduce a typed representation which leads to a intuitionistic version
+starts from a well-scoped %$\lambda$%-calculus and introduce a typed representation which leads to an intuitionistic version
 of linear logic which uses a relation that ensure the resource control behavior of linear logic proofs. Another work which
 formalizes linear logic was developed by Xavier et. al.%~\cite{xavier18}%. The main novelty of their work was the formalization
 of a focused linear logic using a binding representation called parametric high-order abstract syntax (PHOAS)%~\cite{Chlipala08}%.
@@ -721,7 +720,7 @@ reported in the literature (c.f.%~\cite{DuboisM99,NaraschewskiN-JAR,Nazareth-Nip
 The first works on formalizing type inference are by Nazareth and
 Narascewski in Isabelle/HOL%~\cite{NaraschewskiN-JAR,Nazareth-Nipkow}%.
 Both works focus on formalizing the well-known algorithm
-W%~\cite{Milner1978}%, but unlike our work, they don't provide a verified
+W%~\cite{Milner1978}%, but they don't provide a verified
 implementation of unification. They assume all the necessary
 unification properties to finish their certification of type
 inference. The work of Dubois%~\cite{DuboisM99}% also postulates
